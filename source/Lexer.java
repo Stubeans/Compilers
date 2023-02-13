@@ -11,7 +11,7 @@ public class Lexer {
         try {
           File myObj = new File(path);
           Scanner myReader = new Scanner(myObj);
-          int lineNum = 1;
+          int lineNum = 0;
           boolean isString = false;
           boolean isComment = false;
           while (myReader.hasNextLine()) {
@@ -20,7 +20,7 @@ public class Lexer {
             for(int i = 0; i < line.length(); i++) {
                 currentString = currentString + line.charAt(i);
                 //System.out.println(currentString);
-                if(currentString == "$") {
+                if(currentString.equals("$")) {
                   debug("DEBUG", "EOP [ $ ] found at ", lineNum, i+1);
                   currentString = "";
                 } else if(currentString.equals("{")) {
@@ -103,9 +103,15 @@ public class Lexer {
                   }
                   for(int j = 97; j < 123; j++) {
                     if(currentString.equals((char)j + "")) {
-                      debug("DEBUG", "CHAR [ " + (char)j + " ] found at ", lineNum, i+1);
-                      currentString = "";
-                      break;
+                      if(line.length() == i+1) {
+                        debug("DEBUG", "CHAR [ " + (char)j + " ] found at ", lineNum, i+1);
+                        currentString = "";
+                        break;
+                      } else if((line.charAt(i+1) + "").equals(" ")) {
+                        debug("DEBUG", "CHAR [ " + (char)j + " ] found at ", lineNum, i+1);
+                        currentString = "";
+                        break;
+                      }
                     }
                   }
                 }
