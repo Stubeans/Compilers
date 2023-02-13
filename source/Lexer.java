@@ -5,9 +5,9 @@ import java.io.FileNotFoundException;  // Import this class to handle errors
 import java.util.Scanner; // Import the Scanner class to read text files
 
 public class Lexer {
-    public static void main(String[] args) {
+    public void main(String path) {
         try {
-          File myObj = new File("C:/Users/playe/Project/Compilers/source/filename.txt");
+          File myObj = new File(path);
           Scanner myReader = new Scanner(myObj);
           while (myReader.hasNextLine()) {
             String data = myReader.nextLine();
