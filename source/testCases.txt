@@ -6,5 +6,6 @@
     int a
     a = a
     string b
+    "ayyo"
     a = b
 }$
