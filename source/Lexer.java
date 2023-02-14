@@ -1,6 +1,5 @@
 package source;
 
-import java.io.Console;
 import java.io.File;  // Import the File class
 import java.io.FileNotFoundException;  // Import this class to handle errors
 import java.util.Scanner; // Import the Scanner class to read text files
@@ -8,8 +7,6 @@ import java.util.Scanner; // Import the Scanner class to read text files
 public class Lexer {
     public void main(String path) {
       String currentString = "";
-      //never used
-      String expectedString = "";
         try {
           System.out.println("INFO  LEXER - Lexing program 1...");
           File myObj = new File(path);

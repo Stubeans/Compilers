@@ -1,7 +1,6 @@
 package source;
 
 import java.util.Arrays;
-import source.*;
 
 public class Compiler {
     public static void main(String[] args) {
