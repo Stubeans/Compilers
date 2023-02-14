@@ -22,11 +22,13 @@ public class Lexer {
           while (myReader.hasNextLine()) {
             lineNum++;
             String line = myReader.nextLine();
+            //Empty currentString every new line
+            currentString = "";
             //FOR LINES IN FILE
             for(int i = 0; i < line.length(); i++) {
                 //The current element that's being inspected. ( one or many chars stored as a string )
                 currentString = currentString + line.charAt(i);
-                //System.out.println(currentString);
+                //System.out.println(currentString); //DEBUG----------------
                 //IF COMMENTS ARE NOT ON
                 if(isComment == false) {
                   //If cases that look for keywords/identifiers/etc.
@@ -70,8 +72,15 @@ public class Lexer {
                     debug("DEBUG", "CLOSE_PAREN [ ) ] found at ", lineNum, i+1);
                     currentString = "";
                   } else if(currentString.equals("=")) {
-                    debug("DEBUG", "ASSIGN_OP [ = ] found at ", lineNum, i+1);
-                    currentString = "";
+                    if(line.length() != i + 1) {
+                      if(!(line.charAt(i+1) + "").equals("=")) {
+                        debug("DEBUG", "ASSIGN_OP [ = ] found at ", lineNum, i+1);
+                        currentString = "";
+                      }
+                    } else {
+                      debug("DEBUG", "ASSIGN_OP [ = ] found at ", lineNum, i+1);
+                      currentString = "";
+                    }
                   } else if(currentString.equals("while")) {
                     debug("DEBUG", "WHILE_STMT [ while ] found at ", lineNum, i+1);
                     currentString = "";
@@ -127,7 +136,7 @@ public class Lexer {
                     boolean isDone = false;
 
                     for(int j = 0; j < 10; j++) {
-                      if(currentString.equals(i + "")) {
+                      if(currentString.equals(j + "")) {
                         debug("DEBUG", "DIGIT [ " + j + " ] found at ", lineNum, i+1);
                         currentString = "";
                         isDone = true;
@@ -136,7 +145,21 @@ public class Lexer {
                     }
                     if(isDone == false) {
                       for(int j = 97; j < 123; j++) {
-                        if(currentString.equals((char)j + "")) {
+                        if(isString == true) {
+                          isDone = true;
+                          // IF END OF LINE
+                          if(line.length() == i+1) {
+                            debug("ERROR", "Strings must be closed on the same line, missing '" + '"' + "' found at ", lineNum, i+1);
+                            currentString = "";
+                            isString = false;
+                            break;
+                          // IF IT ISNT THE END OF LINE, LOOK AHEAD
+                          } else if((line.charAt(i) + "").equals((char)j + "")) {
+                            debug("DEBUG", "CHAR_" + Character.toUpperCase((char)j) + " found at ", lineNum, i+1);
+                            currentString = "";
+                            break;
+                          }
+                        } else if(currentString.equals((char)j + "")) {
                           isDone = true;
                           // IF END OF LINE
                           if(line.length() == i+1) {
@@ -157,8 +180,8 @@ public class Lexer {
                       }
                     } 
                     // UNRECOGNIZED TOKENS REACH HERE, AND DEBUG AN ERROR
-                    if(isDone == false && !(line.charAt(i) + "").equals("/")) {
-                      debug("ERROR", "Unrecognized Token: " + line.charAt(i) + " Error found at ", lineNum, i+1);
+                    if(isDone == false && !(line.charAt(i) + "").equals("/") && !(line.charAt(i) + "").equals("!") && !(line.charAt(i) + "").equals("=")) {
+                      debug("ERROR", "Unrecognized Token: " + currentString + " Error found at ", lineNum, i+1);
                       errorsFound++;
                       currentString = "";
                     }
