@@ -6,7 +6,8 @@
     int a
     a = a
     string b
-    "ayyo"
+    "ay31yo"
+    "this string works"
     a = b
 }$
 
@@ -18,3 +19,5 @@ while if x = 5; /sdsgsfd
 90 == 213 != 5
 
 $
+
+intaa=astringb"ayyo"$

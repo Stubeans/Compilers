@@ -109,6 +109,9 @@ public class Lexer {
                     debug("DEBUG", "TYPE_CHAR [ char ] found at ", lineNum, i+1);
                     currentString = "";
                   } else if(currentString.equals(" ")) {
+                    if(isString == true) {
+                      debug("DEBUG", "SPACE [  ] found at ", lineNum, i+1);
+                    }
                     //debug("DEBUG", "SPACE [  ] found at ", lineNum, i+1);
                     currentString = "";
                   } else if(currentString.equals("==")) {
@@ -137,10 +140,17 @@ public class Lexer {
 
                     for(int j = 0; j < 10; j++) {
                       if(currentString.equals(j + "")) {
-                        debug("DEBUG", "DIGIT [ " + j + " ] found at ", lineNum, i+1);
-                        currentString = "";
-                        isDone = true;
-                        break;
+                        if(isString == false) {
+                          debug("DEBUG", "DIGIT [ " + j + " ] found at ", lineNum, i+1);
+                          currentString = "";
+                          isDone = true;
+                          break;
+                        } else {
+                          debug("ERROR", "DIGITS cannot be in Strings error found at ", lineNum, i+1);
+                          currentString = "";
+                          isDone = true;
+                          break;
+                        }
                       }
                     }
                     if(isDone == false) {
