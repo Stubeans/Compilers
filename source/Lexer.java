@@ -130,7 +130,7 @@ public class Lexer {
                     debug("DEBUG", "INTOP [ + ] found at ", lineNum, i+1);
                     currentString = "";
                   } else if(currentString.equals("/*")) {
-                    debug("DEBUG", "OPEN_COMMENT [ /* ] found at ", lineNum, i+1);
+                    //debug("DEBUG", "OPEN_COMMENT [ /* ] found at ", lineNum, i+1); DONT MAKE A TOKEN
                     currentString = "";
                     isComment = true;
 
@@ -212,7 +212,7 @@ public class Lexer {
                     currentString = currentString + line.charAt(i);
                   //FOUND '*/' END COMMENTS
                   } else if(currentString.equals("*/")) {
-                    debug("DEBUG", "CLOSE_COMMENT [ */ ] found at ", lineNum, i+1);
+                    //ebug("DEBUG", "CLOSE_COMMENT [ */ ] found at ", lineNum, i+1); DONT MAKE A TOKEN!
                     currentString = "";
                     isComment = false;
                   }
