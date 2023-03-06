@@ -14,8 +14,8 @@ public class Lexer {
           int lineNum = 0;
           int errorsFound = 0;
           int prgCounter = 1;
-          int lBrack = 0;
-          int rBrack = 0;
+          //int lBrack = 0;
+          //int rBrack = 0;
           boolean isString = false;
           boolean isComment = false;
           //WHILE THERE ARE LINES LEFT
@@ -35,12 +35,12 @@ public class Lexer {
                   //If a legitimate case is found, debug Tokens in output, and reset the currentString back to empty
                   if(currentString.equals("$")) {
                     //If the number of left brackets don't match the number of left, return an error on the current program
-                    if(lBrack != rBrack) {
-                      System.out.println("ERROR LEXER - Your brackets are uneven in program " + prgCounter + "!");
-                      errorsFound++;
-                    }
-                    lBrack = 0;
-                    rBrack = 0;
+                    //if(lBrack != rBrack) {
+                      //System.out.println("ERROR LEXER - Your brackets are uneven in program " + prgCounter + "!");
+                      //errorsFound++;
+                    //}
+                    //lBrack = 0;
+                    //rBrack = 0;
                     debug("DEBUG", "EOP [ $ ] found at ", lineNum, i+1);
                     System.out.println("INFO  LEXER - Lex completed with " + errorsFound + " errors");
                     errorsFound = 0;
@@ -57,11 +57,11 @@ public class Lexer {
                   } else if(currentString.equals("{")) {
                     debug("DEBUG", "OPEN_BLOCK [ { ] found at ", lineNum, i+1);
                     currentString = "";
-                    lBrack++;
+                    //lBrack++;
                   } else if(currentString.equals("}")) {
                     debug("DEBUG", "CLOSE_BLOCK [ } ] found at ", lineNum, i+1);
                     currentString = "";
-                    rBrack++;
+                    //rBrack++;
                   } else if(currentString.equals("print")) {
                     debug("DEBUG", "PRINT_STMT [ print ] found at ", lineNum, i+1);
                     currentString = "";
