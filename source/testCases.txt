@@ -11,6 +11,8 @@
     a = b
 }$
 
+boolean
+
 /dsdgsdfg
 =======
 !!!!!!!h6
