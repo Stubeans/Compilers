@@ -235,6 +235,13 @@ public class Parser {
                 match("TYPE_STR");
             } else if(currentToken.equals("TYPE_BOOL")) {
                 match("TYPE_BOOL");
+            } else {
+                debug("ERROR: Found token: " + currentToken + ", Expected a type on line " + thisTokenStream.get(currentTokenPos).pos);
+                debug("Parse failed with 1 error");
+                System.out.println();
+                System.out.println("CST for program " + prgCounter + ": Skipped due to PARSER error(s).");
+                System.out.println();
+                isntError = false;
             }
         }
     }
