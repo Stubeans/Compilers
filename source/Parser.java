@@ -9,6 +9,8 @@ public class Parser {
     ArrayList<Token> thisTokenStream;
     private int prgCounter = 0;
     private boolean isntError;
+    ArrayList<String> CST;
+    ArrayList<Integer> CSTdepth;
 
     public void main(ArrayList<Token> tokenStream) {
         prgCounter++;
@@ -138,6 +140,13 @@ public class Parser {
                 parseBoolExpr();
             } else if(currentToken.equals("ID")) {
                 parseId();
+            } else {
+                debug("ERROR: Found token: " + currentToken + ", Expected an expression on line " + thisTokenStream.get(currentTokenPos).pos);
+                debug("Parse failed with 1 error");
+                System.out.println();
+                System.out.println("CST for program " + prgCounter + ": Skipped due to PARSER error(s).");
+                System.out.println();
+                isntError = false;
             }
         }
     }
