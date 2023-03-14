@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Parser {
 
-    private int currentTokenPos = 0;
+    private int currentTokenPos;
     private String currentToken;
     ArrayList<Token> thisTokenStream;
     private int prgCounter = 0;
@@ -14,6 +14,7 @@ public class Parser {
         prgCounter++;
         isntError = true;
         thisTokenStream = tokenStream;
+        currentTokenPos = 0;
         System.out.println();
         debug("Parsing program " + prgCounter + "...");
         System.out.print("Token Stream : ( ");
@@ -52,8 +53,8 @@ public class Parser {
     private void parseStmtList() {
         if(isntError) {
             debug("parseStatementList()");
-            if(currentToken == "PRINT_STMT" | currentToken == "ID" | currentToken == "TYPE_INT" | currentToken == "TYPE_STR" | currentToken == "TYPE_BOOL" | currentToken == "WHILE_STMT" |
-            currentToken == "IF_STMT" | currentToken == "OPEN_BLOCK") {
+            if(currentToken.equals("PRINT_STMT") | currentToken.equals("ID") | currentToken.equals("TYPE_INT") | currentToken.equals("TYPE_STR") | 
+            currentToken.equals("TYPE_BOOL") | currentToken.equals("WHILE_STMT") | currentToken.equals("IF_STMT") | currentToken.equals("OPEN_BLOCK")) {
                 parseStmt();
                 parseStmtList();
             } else {
@@ -65,17 +66,17 @@ public class Parser {
     private void parseStmt() {
         if(isntError) {
             debug("parseStatement()");
-            if(currentToken == "PRINT_STMT") {
+            if(currentToken.equals("PRINT_STMT")) {
                 parsePrintStmt();
-            } else if(currentToken == "ID") {
+            } else if(currentToken.equals("ID")) {
                 parseAssignStmt();
-            } else if(currentToken == "TYPE_INT" | currentToken == "TYPE_STR" | currentToken == "TYPE_BOOL") {
+            } else if(currentToken.equals("TYPE_INT") | currentToken.equals("TYPE_STR") | currentToken.equals("TYPE_BOOL")) {
                 parseVarDecl();
-            } else if(currentToken == "WHILE_STMT") {
+            } else if(currentToken.equals("WHILE_STMT")) {
                 parseWhileStmt();
-            } else if(currentToken == "IF_STMT") {
+            } else if(currentToken.equals("IF_STMT")) {
                 parseIfStmt();
-            } else if(currentToken == "OPEN_BLOCK") {
+            } else if(currentToken.equals("OPEN_BLOCK")) {
                 parseBlock();
             }
         }
@@ -129,13 +130,13 @@ public class Parser {
     private void parseExpr() {
         if(isntError) {
             debug("parseExpression()");
-            if(currentToken == "DIGIT") {
+            if(currentToken.equals("DIGIT")) {
                 parseIntExpr();
-            } else if(currentToken == "OPEN_STR") {
+            } else if(currentToken.equals("OPEN_STR")) {
                 parseStringExpr();
-            } else if(currentToken == "OPEN_PAREN") {
+            } else if(currentToken.equals("OPEN_PAREN")) {
                 parseBoolExpr();
-            } else if(currentToken == "ID") {
+            } else if(currentToken.equals("ID")) {
                 parseId();
             }
         }
@@ -144,7 +145,7 @@ public class Parser {
     private void parseIntExpr() {
         if(isntError) {
             debug("parseIntegerExpression()");
-            match("DIGIT");
+            parseDigit();
             if(currentToken == "INTOP") {
                 parseIntop();
                 parseExpr();
@@ -164,7 +165,7 @@ public class Parser {
     private void parseBoolExpr() {
         if(isntError) {
             debug("parseBoolExpression()");
-            if(currentToken == "OPEN_PAREN") {
+            if(currentToken.equals("OPEN_PAREN")) {
                 match("OPEN_PAREN");
                 parseExpr();
                 parseBoolop();
@@ -187,11 +188,11 @@ public class Parser {
         if(isntError) {
             debug("parseCharList()");
             if(currentToken.length() >= 4) {
-                if(currentToken.substring(0, 3) == "CHAR") {
-                    match("CHAR");
+                if(currentToken.substring(0, 4).equals("CHAR")) {
+                    parseChar();
                     parseCharList();
-                } else if(currentToken == "_CHAR_SPACE") {
-                    match("_CHAR_SPACE");
+                } else if(currentToken.equals("_CHAR_SPACE")) {
+                    parseSpace();
                     parseCharList();
                 } else {
                     //nothing
@@ -205,11 +206,11 @@ public class Parser {
     private void parseType() {
         if(isntError) {
             debug("parseType()");
-            if(currentToken == "TYPE_INT") {
+            if(currentToken.equals("TYPE_INT")) {
                 match("TYPE_INT");
-            } else if(currentToken == "TYPE_STR") {
+            } else if(currentToken.equals("TYPE_STR")) {
                 match("TYPE_STR");
-            } else if(currentToken == "TYPE_BOOL") {
+            } else if(currentToken.equals("TYPE_BOOL")) {
                 match("TYPE_BOOL");
             }
         }
@@ -260,12 +261,12 @@ public class Parser {
     private void match(String expectedToken) {
         if(isntError) {
             if(currentToken.length() >= 4) {
-                if(currentToken.substring(0, 3) == "CHAR") {
-                    currentToken = currentToken.substring(0, 3);
+                if(currentToken.substring(0, 4).equals("CHAR")) {
+                    currentToken = currentToken.substring(0, 4);
                 }
             }
-            if(currentToken == expectedToken) {
-                if(expectedToken == "EOP") {
+            if(currentToken.equals(expectedToken)) {
+                if(expectedToken.equals("EOP")) {
                     debug("Parse completed successfully");
                     System.out.println();
                 } else {
@@ -273,7 +274,7 @@ public class Parser {
                 }
                 currentToken = thisTokenStream.get(currentTokenPos).type;
             } else {
-                debug("ERROR: Found token: " + currentToken + ", Expected token: " + expectedToken);
+                debug("ERROR: Found token: " + currentToken + ", Expected token: " + expectedToken + " on line " + thisTokenStream.get(currentTokenPos).pos);
                 debug("Parse failed with 1 error");
                 System.out.println();
                 System.out.println("CST for program " + prgCounter + ": Skipped due to PARSER error(s).");
