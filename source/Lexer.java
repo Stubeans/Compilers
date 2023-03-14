@@ -36,7 +36,7 @@ public class Lexer {
                 //If a legitimate case is found, debug Tokens in output, and reset the currentString back to empty
                 if(currentString.equals("$")) {
                   debug("DEBUG", "EOP [ $ ] found at ", lineNum, i+1);
-                  tokenStream.add(new Token("EOP", lineNum + ":" + (i+1)));
+                  tokenStream.add(new Token("EOP", "$", lineNum + ":" + (i+1)));
                   if(errorsFound == 0) {
                     System.out.println("INFO  LEXER - Lex completed successfully");
                     parser.main(tokenStream);
@@ -60,64 +60,64 @@ public class Lexer {
                   debug("ERROR", "You forgot to put a $ at the end of your file", lineNum, (i+1));
                 } else if(currentString.equals("{")) {
                   debug("DEBUG", "OPEN_BLOCK [ { ] found at ", lineNum, i+1);
-                  tokenStream.add(new Token("OPEN_BLOCK", lineNum + ":" + (i+1)));
+                  tokenStream.add(new Token("OPEN_BLOCK", "{", lineNum + ":" + (i+1)));
                   currentString = "";
                 } else if(currentString.equals("}")) {
                   debug("DEBUG", "CLOSE_BLOCK [ } ] found at ", lineNum, i+1);
-                  tokenStream.add(new Token("CLOSE_BLOCK", lineNum + ":" + (i+1)));
+                  tokenStream.add(new Token("CLOSE_BLOCK", "}", lineNum + ":" + (i+1)));
                   currentString = "";
                 } else if(currentString.equals("print")) {
                   debug("DEBUG", "PRINT_STMT [ print ] found at ", lineNum, (i+1)-4);
-                  tokenStream.add(new Token("PRINT_STMT", lineNum + ":" + (i+1-4)));
+                  tokenStream.add(new Token("PRINT_STMT", "print", lineNum + ":" + (i+1-4)));
                   currentString = "";
                 } else if(currentString.equals("(")) {
                   debug("DEBUG", "OPEN_PAREN [ ( ] found at ", lineNum, i+1);
-                  tokenStream.add(new Token("OPEN_PAREN", lineNum + ":" + (i+1)));
+                  tokenStream.add(new Token("OPEN_PAREN", "(", lineNum + ":" + (i+1)));
                   currentString = "";
                 } else if(currentString.equals(")")) {
                   debug("DEBUG", "CLOSE_PAREN [ ) ] found at ", lineNum, i+1);
-                  tokenStream.add(new Token("CLOSE_PAREN", lineNum + ":" + (i+1)));
+                  tokenStream.add(new Token("CLOSE_PAREN", ")", lineNum + ":" + (i+1)));
                   currentString = "";
                 } else if(currentString.equals("=")) {
                   if(line.length() != i + 1) {
                     if(!(line.charAt(i+1) + "").equals("=")) {
                       debug("DEBUG", "ASSIGN_OP [ = ] found at ", lineNum, i+1);
-                      tokenStream.add(new Token("ASSIGN_OP", lineNum + ":" + (i+1)));
+                      tokenStream.add(new Token("ASSIGN_OP", "=", lineNum + ":" + (i+1)));
                       currentString = "";
                     }
                   } else {
                     debug("DEBUG", "ASSIGN_OP [ = ] found at ", lineNum, i+1);
-                    tokenStream.add(new Token("ASSIGN_OP", lineNum + ":" + (i+1)));
+                    tokenStream.add(new Token("ASSIGN_OP", "=", lineNum + ":" + (i+1)));
                     currentString = "";
                   }
                 } else if(currentString.equals("while")) {
                   debug("DEBUG", "WHILE_STMT [ while ] found at ", lineNum, (i+1)-4);
-                  tokenStream.add(new Token("WHILE_STMT", lineNum + ":" + (i+1-4)));
+                  tokenStream.add(new Token("WHILE_STMT", "while", lineNum + ":" + (i+1-4)));
                   currentString = "";
                 } else if(currentString.equals("if")) {
                   debug("DEBUG", "IF_STMT [ if ] found at ", lineNum, (i+1)-1);
-                  tokenStream.add(new Token("IF_STMT", lineNum + ":" + (i+1-1)));
+                  tokenStream.add(new Token("IF_STMT", "if", lineNum + ":" + (i+1-1)));
                   currentString = "";
                 } else if(currentString.equals("" + '"') && isString == false) {
                   debug("DEBUG", "OPEN_STR [ " + '"' + " ] found at ", lineNum, i+1);
-                  tokenStream.add(new Token("OPEN_STR", lineNum + ":" + (i+1)));
+                  tokenStream.add(new Token("OPEN_STR", '"' + "", lineNum + ":" + (i+1)));
                   isString = true;
                   currentString = "";
                 } else if(currentString.equals("int")) {
                   debug("DEBUG", "TYPE_INT [ int ] found at ", lineNum, (i+1)-2);
-                  tokenStream.add(new Token("TYPE_INT", lineNum + ":" + (i+1-2)));
+                  tokenStream.add(new Token("TYPE_INT", "int", lineNum + ":" + (i+1-2)));
                   currentString = "";
                 } else if(currentString.equals("string")) {
                   debug("DEBUG", "TYPE_STR [ string ] found at ", lineNum, (i+1)-5);
-                  tokenStream.add(new Token("TYPE_STR", lineNum + ":" + (i+1-5)));
+                  tokenStream.add(new Token("TYPE_STR", "string", lineNum + ":" + (i+1-5)));
                   currentString = "";
                 } else if(currentString.equals("boolean")) {
                   debug("DEBUG", "TYPE_BOOL [ boolean ] found at ", lineNum, (i+1)-6);
-                  tokenStream.add(new Token("TYPE_BOOL", lineNum + ":" + (i+1-6)));
+                  tokenStream.add(new Token("TYPE_BOOL", "boolean", lineNum + ":" + (i+1-6)));
                   currentString = "";
                 } else if(currentString.equals("char")) {
                   debug("DEBUG", "TYPE_CHAR [ char ] found at ", lineNum, (i+1)-3);
-                  tokenStream.add(new Token("TYPE_CHAR", lineNum + ":" + (i+1-3)));
+                  tokenStream.add(new Token("TYPE_CHAR", "char", lineNum + ":" + (i+1-3)));
                   currentString = "";
                 } else if(currentString.equals(" ")) {
                   if(isString == true) {
@@ -142,7 +142,7 @@ public class Lexer {
                   currentString = "";
                 } else if(currentString.equals("+")) {
                   debug("DEBUG", "INTOP [ + ] found at ", lineNum, i+1);
-                  tokenStream.add(new Token("INTOP", lineNum + ":" + i+1));
+                  tokenStream.add(new Token("INTOP", "+", lineNum + ":" + i+1));
                   currentString = "";
                 } else if(currentString.equals("/*")) {
                   currentString = "";
@@ -237,15 +237,15 @@ public class Lexer {
                   if(line.length() != i+1) {
                     if(isValidChar(line.charAt(i) + "")) { //if current char is valid
                       debug("DEBUG", "CHAR_" + Character.toUpperCase(line.charAt(i)) + " found at ", lineNum, (i+1));
-                      tokenStream.add(new Token("CHAR_" + Character.toUpperCase(line.charAt(i)), lineNum + ":" + (i+1)));
+                      tokenStream.add(new Token("CHAR_" + Character.toUpperCase(line.charAt(i)), line.charAt(i) + "", lineNum + ":" + (i+1)));
                     } else if((line.charAt(i) + "").equals("" + '"')) { //if current char isn't 'valid', but is an "
                       debug("DEBUG", "CLOSE_STR [ " + '"' + " ] found at ", lineNum, (i+1));
-                      tokenStream.add(new Token("CLOSE_STR", lineNum + ":" + (i+1)));
+                      tokenStream.add(new Token("CLOSE_STR", '"' + "", lineNum + ":" + (i+1)));
                       isString = false;
                       currentString = "";
                     } else if((line.charAt(i) + "").equals(" ")) { //If current char isn't 'valid', or an ", but is rather a space
                       debug("DEBUG", "_CHAR_SPACE found at ", lineNum, (i+1));
-                      tokenStream.add(new Token("_CHAR_SPACE", lineNum + ":" + (i+1)));
+                      tokenStream.add(new Token("_CHAR_SPACE", " ", lineNum + ":" + (i+1)));
                     } else { //If it's none of these acceptable inputs, send out an error
                       System.out.println("ERROR LEXER - The character, '" + line.charAt(i) + "' at (" + lineNum + ":" + (i+1) + ") does not belong in a String");
                       errorsFound++;
@@ -257,14 +257,14 @@ public class Lexer {
                       currentString = "";
                     } else if(isValidChar(line.charAt(i) + "")) { //if current char is valid. Also Gives out an error that the String wasn't ended
                       debug("DEBUG", "CHAR_" + Character.toUpperCase(line.charAt(i)) + " found at ", lineNum, (i+1));
-                      tokenStream.add(new Token("CHAR_" + Character.toUpperCase(line.charAt(i)), lineNum + ":" + (i+1)));
+                      tokenStream.add(new Token("CHAR_" + Character.toUpperCase(line.charAt(i)), line.charAt(i) + "", lineNum + ":" + (i+1)));
                       debug("ERROR", "Strings must be closed on the same line, missing '" + '"' + "' found at ", lineNum, (i+1));
                       errorsFound++;
                       currentString = "";
                       isString = false;
                     } else if((line.charAt(i) + "").equals(" ")) { //If current char isn't 'valid', or an ", but is rather a space. Also Gives out an error that the String wasn't ended
                       debug("DEBUG", "_CHAR_SPACE found at ", lineNum, (i+1));
-                      tokenStream.add(new Token("_CHAR_SPACE", lineNum + ":" + (i+1)));
+                      tokenStream.add(new Token("_CHAR_SPACE", " ", lineNum + ":" + (i+1)));
                       debug("ERROR", "Strings must be closed on the same line, missing '" + '"' + "' found at ", lineNum, (i+1));
                     } else { //If it's none of these acceptable inputs, send out an error. Also Gives out an error that the String wasn't ended
                       System.out.println("ERROR LEXER - The character, '" + line.charAt(i) + "' at (" + lineNum + ":" + (i+1) + ") does not belong in a String");
