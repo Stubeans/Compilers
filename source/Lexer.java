@@ -6,9 +6,10 @@ import java.util.ArrayList;
 import java.util.Scanner; // Import the Scanner class to read text files
 
 public class Lexer {
-    public ArrayList<Token> main(String path) {
+    public void main(String path) {
       String currentString = "";
       ArrayList<Token> tokenStream = new ArrayList<>();
+      Parser parser = new Parser();
         try {
           System.out.println("INFO  LEXER - Lexing program 1...");
           File myObj = new File(path);
@@ -36,7 +37,16 @@ public class Lexer {
                 if(currentString.equals("$")) {
                   debug("DEBUG", "EOP [ $ ] found at ", lineNum, i+1);
                   tokenStream.add(new Token("EOP", lineNum + ":" + (i+1)));
-                  System.out.println("INFO  LEXER - Lex completed with " + errorsFound + " errors");
+                  if(errorsFound == 0) {
+                    System.out.println("INFO  LEXER - Lex completed successfully");
+                    parser.main(tokenStream);
+                    tokenStream.clear();
+                  } else {
+                    System.out.println("INFO  LEXER - Lex completed with " + errorsFound + " error(s)");
+                    System.out.println();
+                    System.out.println("CST for program " + prgCounter + ": Skipped due to PARSER error(s).");
+                    System.out.println();
+                  }
                   errorsFound = 0;
                   prgCounter++;
                   //If there are more lines,
@@ -234,8 +244,8 @@ public class Lexer {
                       isString = false;
                       currentString = "";
                     } else if((line.charAt(i) + "").equals(" ")) { //If current char isn't 'valid', or an ", but is rather a space
-                      debug("DEBUG", "CHAR_SPACE found at ", lineNum, (i+1));
-                      tokenStream.add(new Token("CHAR_SPACE", lineNum + ":" + (i+1)));
+                      debug("DEBUG", "_CHAR_SPACE found at ", lineNum, (i+1));
+                      tokenStream.add(new Token("_CHAR_SPACE", lineNum + ":" + (i+1)));
                     } else { //If it's none of these acceptable inputs, send out an error
                       System.out.println("ERROR LEXER - The character, '" + line.charAt(i) + "' at (" + lineNum + ":" + (i+1) + ") does not belong in a String");
                       errorsFound++;
@@ -252,9 +262,10 @@ public class Lexer {
                       errorsFound++;
                       currentString = "";
                       isString = false;
-                    } else if((line.charAt(i) + "").equals(" ")) { //If current char isn't 'valid', or an ", but is rather a space
-                      debug("DEBUG", "CHAR_SPACE found at ", lineNum, (i+1));
-                      tokenStream.add(new Token("CLOSE_STR", lineNum + ":" + (i+1)));
+                    } else if((line.charAt(i) + "").equals(" ")) { //If current char isn't 'valid', or an ", but is rather a space. Also Gives out an error that the String wasn't ended
+                      debug("DEBUG", "_CHAR_SPACE found at ", lineNum, (i+1));
+                      tokenStream.add(new Token("_CHAR_SPACE", lineNum + ":" + (i+1)));
+                      debug("ERROR", "Strings must be closed on the same line, missing '" + '"' + "' found at ", lineNum, (i+1));
                     } else { //If it's none of these acceptable inputs, send out an error. Also Gives out an error that the String wasn't ended
                       System.out.println("ERROR LEXER - The character, '" + line.charAt(i) + "' at (" + lineNum + ":" + (i+1) + ") does not belong in a String");
                       debug("ERROR", "Strings must be closed on the same line, missing '" + '"' + "' found at ", lineNum, (i+1));
@@ -275,12 +286,12 @@ public class Lexer {
           System.out.println("An error occurred.");
           e.printStackTrace();
         }
-      return tokenStream;
+      //return tokenStream;
     }
 
     //Debug Function
     public void debug(String type, String msg, int line, int spot) {
-      System.out.println(type + " Lexer - " + msg + "(" + line + ":" + spot + ")");
+      System.out.println(type + " LEXER - " + msg + "(" + line + ":" + spot + ")");
     }
 
     //Helper function to tell if a given char ( in string format ) is valid. valid meaning a-z lowercase.
