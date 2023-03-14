@@ -80,6 +80,13 @@ public class Parser {
                 parseIfStmt();
             } else if(currentToken.equals("OPEN_BLOCK")) {
                 parseBlock();
+            } else {
+                debug("ERROR: Found token: " + currentToken + ", Expected statement on line " + thisTokenStream.get(currentTokenPos).pos);
+                debug("Parse failed with 1 error");
+                System.out.println();
+                System.out.println("CST for program " + prgCounter + ": Skipped due to PARSER error(s).");
+                System.out.println();
+                isntError = false;
             }
         }
     }
@@ -180,8 +187,15 @@ public class Parser {
                 parseBoolop();
                 parseExpr();
                 match("CLOSE_PAREN");
-            } else {
+            } else if(currentToken.equals("BOOL_VAL")){
                 parseBoolval();
+            } else {
+                debug("ERROR: Found token: " + currentToken + ", Expected boolean expression on line " + thisTokenStream.get(currentTokenPos).pos);
+                debug("Parse failed with 1 error");
+                System.out.println();
+                System.out.println("CST for program " + prgCounter + ": Skipped due to PARSER error(s).");
+                System.out.println();
+                isntError = false;
             }
         }
     }
