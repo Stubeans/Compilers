@@ -23,12 +23,17 @@ public class Parser {
         currentTokenPos = 0;
         System.out.println();
         debug("Parsing program " + prgCounter + "...");
-        System.out.print("Token Stream : ( ");
+        System.out.print("Token Stream Received : ( ");
         for(int i = 0; i < thisTokenStream.size(); i++) {
-            System.out.print(thisTokenStream.get(i).type + " ");
+            if(!(thisTokenStream.get(i).type).equals("EOP")) {
+                System.out.print(thisTokenStream.get(i).type + ", ");
+            } else {
+                System.out.print(thisTokenStream.get(i).type + " ");
+            }
+            
         }
         currentToken = thisTokenStream.get(currentTokenPos).type;
-        System.out.println(" )");
+        System.out.println(")");
         parse();
     }
 
