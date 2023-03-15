@@ -39,6 +39,7 @@ public class Lexer {
                   tokenStream.add(new Token("EOP", "$", lineNum + ":" + (i+1)));
                   if(errorsFound == 0) {
                     System.out.println("INFO  LEXER - Lex completed successfully");
+                    //If there are 0 errors, run the Parser using the tokenStream developed from that last program, then clear the tokenStream
                     parser.main(tokenStream);
                     tokenStream.clear();
                   } else {

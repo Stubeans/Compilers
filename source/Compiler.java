@@ -6,6 +6,7 @@ public class Compiler {
     public static void main(String[] args) {
         //Insantiate the Lexer
         Lexer lexer = new Lexer();
+        //The Parser will be run in the Lexer
 
         //If a file is given, run the lexer with it. Otherwise, error.
         if(args.length != 0) {

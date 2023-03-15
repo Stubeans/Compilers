@@ -14,6 +14,8 @@ public class Parser {
     int depth;
 
     public void main(ArrayList<Token> tokenStream) {
+        //For each tokenstream, reset all the variables (except prgCounter which we increment)
+        //Display the current program, and the tokenStream recieved, and then start the recursive descent parser with the tokenStream recieved
         depth = 0;
         prgCounter++;
         isntError = true;
@@ -30,15 +32,20 @@ public class Parser {
         parse();
     }
 
+    //Begins the parse
     private void parse() {
+        //isntError is here to ensure that when an error is found, we don't keep recursively traversing our tokenStream.
+        //Or rather, technically, that we don't run the code inside the functions that are being recursively traversed.
         if(isntError) {
             debug("parse()");
             parsePrg();
         }
     }
 
+    //Function names self explanatory
     private void parsePrg() {
         if(isntError) {
+            //Add the current production to the CST, assign it's depth, then increment the depth counter
             CST.add("<Program>");
             CSTdepth.add(depth);
             depth++;
@@ -57,6 +64,7 @@ public class Parser {
             match("OPEN_BLOCK");
             parseStmtList();
             match("CLOSE_BLOCK");
+            //At the end of every function ( except parsePrg ) decrement the depth counter
             depth--;
         }
     }
@@ -67,11 +75,12 @@ public class Parser {
             CSTdepth.add(depth);
             depth++;
             debug("parseStatementList()");
+            //If the token is something we expect:
             if(currentToken.equals("PRINT_STMT") | currentToken.equals("ID") | currentToken.equals("TYPE_INT") | currentToken.equals("TYPE_STR") | 
             currentToken.equals("TYPE_BOOL") | currentToken.equals("WHILE_STMT") | currentToken.equals("IF_STMT") | currentToken.equals("OPEN_BLOCK")) {
                 parseStmt();
                 parseStmtList();
-            } else {
+            } else { //If there is no token
                 //do nothing
             }
             depth--;
@@ -84,6 +93,7 @@ public class Parser {
             CSTdepth.add(depth);
             depth++;
             debug("parseStatement()");
+            //If it's something we expect
             if(currentToken.equals("PRINT_STMT")) {
                 parsePrintStmt();
             } else if(currentToken.equals("ID")) {
@@ -96,7 +106,7 @@ public class Parser {
                 parseIfStmt();
             } else if(currentToken.equals("OPEN_BLOCK")) {
                 parseBlock();
-            } else {
+            } else { //Else display an error saying what we got, and what we expected
                 debug("ERROR: Found token: " + currentToken + ", Expected statement on line " + thisTokenStream.get(currentTokenPos).pos);
                 debug("Parse failed with 1 error");
                 System.out.println();
@@ -379,19 +389,23 @@ public class Parser {
 
     private void match(String expectedToken) {
         if(isntError) {
+            //If the token is a CHAR_<A-Z>, just cut it down to CHAR for the match 
             if(currentToken.length() >= 4) {
                 if(currentToken.substring(0, 4).equals("CHAR")) {
                     currentToken = currentToken.substring(0, 4);
                 }
             }
+            //If the token does match,
             if(currentToken.equals(expectedToken)) {
                 CST.add("[" + thisTokenStream.get(currentTokenPos).val + "]");
                 CSTdepth.add(depth);
                 if(expectedToken.equals("EOP")) {
+                    //AND the token is the EOP, end the program and display the CST. Theoretically, if there is an error this code will never be reached.
                     debug("Parse completed successfully");
                     System.out.println();
                     displayCST();
                 } else {
+                    //Increment the currentTokenPos and set the current token to the token in the stream at currentTokenPos.
                     currentTokenPos++;
                 }
                 currentToken = thisTokenStream.get(currentTokenPos).type;
@@ -410,6 +424,8 @@ public class Parser {
         System.out.println("PARSER: " + message);
     }
 
+    //This code handles displaying the CST. It runs thru each element in the CST, and displays it using it's corresponding Depth value in the CSTdepth array.
+    //After the CST is displayed, clear both arrays, and reset the depth back to 0. ( this is why we skip decrementing depth in parsePrg() )
     private void displayCST() {
         System.out.println("CST for program " + prgCounter + "...");
         String leading = "";
