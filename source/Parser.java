@@ -200,6 +200,8 @@ public class Parser {
                 parseStringExpr();
             } else if(currentToken.equals("OPEN_PAREN")) {
                 parseBoolExpr();
+            } else if(currentToken.equals("BOOL_VAL")) {
+                parseBoolval();
             } else if(currentToken.equals("ID")) {
                 parseId();
             } else {

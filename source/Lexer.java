@@ -254,6 +254,7 @@ public class Lexer {
                   } else {
                     if((line.charAt(i) + "").equals("" + '"')) { //if current char is an "
                       debug("DEBUG", "CLOSE_STR [ " + '"' + " ] found at ", lineNum, (i+1));
+                      tokenStream.add(new Token("CLOSE_STR", '"' + "", lineNum + ":" + (i+1)));
                       isString = false;
                       currentString = "";
                     } else if(isValidChar(line.charAt(i) + "")) { //if current char is valid. Also Gives out an error that the String wasn't ended

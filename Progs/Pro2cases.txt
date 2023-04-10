@@ -1,0 +1,17 @@
+{
+    print(2+a)
+    print(true)
+    print(false)
+    b="alan"
+    if (a==1) {
+        print(b)
+    }
+    c = "james"
+    b = "blackstone"
+    while(a != 9) {
+        if(a != 5) {
+            print("bond")
+        }
+    }
+}
+$
