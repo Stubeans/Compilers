@@ -13,6 +13,8 @@ public class Parser {
     ArrayList<Integer> CSTdepth = new ArrayList<>();
     int depth;
 
+    SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
+
     public void main(ArrayList<Token> tokenStream) {
         //For each tokenstream, reset all the variables (except prgCounter which we increment)
         //Display the current program, and the tokenStream recieved, and then start the recursive descent parser with the tokenStream recieved
@@ -443,6 +445,7 @@ public class Parser {
             System.out.println(leading + CST.get(i));
             leading = "";
         }
+        semanticAnalyzer.main(CST);
         System.out.println();
         CST.clear();
         CSTdepth.clear();
