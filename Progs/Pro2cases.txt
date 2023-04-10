@@ -20,4 +20,8 @@ $
     int x
     x = 0
     print("hello")
+    y = 4 + x
+    if(x==y) {
+        
+    }
 }$

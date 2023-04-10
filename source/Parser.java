@@ -445,7 +445,7 @@ public class Parser {
             System.out.println(leading + CST.get(i));
             leading = "";
         }
-        semanticAnalyzer.main(CST);
+        semanticAnalyzer.main(CST, CSTdepth);
         System.out.println();
         CST.clear();
         CSTdepth.clear();

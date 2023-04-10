@@ -12,7 +12,7 @@ public class SemanticAnalyzer {
 
     private ArrayList<Symbol> symbolTable = new ArrayList<>();
 
-    public void main(ArrayList<String> CST) {
+    public void main(ArrayList<String> CST, ArrayList<Integer> CSTdepth) {
 
         prgCounter++;
 
@@ -62,18 +62,48 @@ public class SemanticAnalyzer {
                 ASTdepth.add(depth);
             //Print
             } else if(CST.get(i).equals("<Print Statement>")) {
-            
+                AST.add("Print");
+                ASTdepth.add(depth);
+                depth++;
             //intOp
             } else if(CST.get(i).equals("<Integer Operation>")) {
-
+                AST.add("Intop");
+                ASTdepth.add(depth);
+                depth++;
+                AST.add(CST.get(i-1));
+                ASTdepth.add(depth);
             //boolOp
             } else if(CST.get(i).equals("<Boolean Operation>")) {
-
+                AST.add("Boolop");
+                ASTdepth.add(depth);
+                depth++;
             //if
             } else if(CST.get(i).equals("<If Statement>")) {
 
             //while
             } else if(CST.get(i).equals("<While Statement>")) {
+
+            //NON-DEPTH++
+            //id
+            } else if(CST.get(i).equals("<Id>")) {
+
+            //digit
+            } else if(CST.get(i).equals("<Digit>")) {
+
+            //charList
+            } else if(CST.get(i).equals("<Char List>")) {
+
+            //boolval
+            } else if(CST.get(i).equals("<Boolean Value>")) {
+
+            //int
+            } else if(CST.get(i).equals("[int]")) {
+
+            //string
+            }  else if(CST.get(i).equals("[string]")) {
+
+            //bool
+            } else if(CST.get(i).equals("[boolean]")) {
 
             }
         }
