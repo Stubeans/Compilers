@@ -10,6 +10,8 @@ public class SemanticAnalyzer {
     private int prgCounter = 0;
     private boolean isntError;
     private int depth = 0;
+    private String currentString = "";
+    private int scope = -1;
 
     private ArrayList<String> AST = new ArrayList<>();
     private ArrayList<Integer> ASTdepth = new ArrayList<>();
@@ -23,6 +25,8 @@ public class SemanticAnalyzer {
         isntError = true;
         thisTokenStream = tokenStream;
         currentTokenPos = 0;
+        currentString = "";
+        scope = -1;
 
         System.out.println();
         debug("STARTING SEMANTIC ANALYSIS ON PROGRAM " + prgCounter + ".");
@@ -31,9 +35,11 @@ public class SemanticAnalyzer {
         currentToken = thisTokenStream.get(currentTokenPos).type;
         parse();
         printAST();
+        printSymbolTable();
 
         AST.clear();
         ASTdepth.clear();
+        symbolTable.clear();
 
         //symbolTable.add(new Symbol("0", "type", 0, symbolTable));
 
@@ -52,6 +58,14 @@ public class SemanticAnalyzer {
     private void parsePrg() {
         if(isntError) {
             parseBlock();
+            if(currentTokenPos+1 != thisTokenStream.size()) {
+                currentTokenPos++;
+                currentToken = thisTokenStream.get(currentTokenPos).type;
+            } else { //End of file code
+                System.out.println();
+                debug("AST completed successfully");
+                System.out.println();
+            }
         }
     }
 
@@ -60,6 +74,7 @@ public class SemanticAnalyzer {
             AST.add("<Block>");
             ASTdepth.add(depth);
             depth++;
+            scope++;
             debug("parseBlock()");
             currentTokenPos++;
             currentToken = thisTokenStream.get(currentTokenPos).type;
@@ -68,6 +83,7 @@ public class SemanticAnalyzer {
             currentToken = thisTokenStream.get(currentTokenPos).type;
             //At the end of every function ( except parsePrg ) decrement the depth counter
             depth--;
+            scope--;
         }
     }
 
@@ -223,6 +239,7 @@ public class SemanticAnalyzer {
                 parseBoolop();
                 parseExpr();
                 currentTokenPos++;
+                currentToken = thisTokenStream.get(currentTokenPos).type;
             } else if(currentToken.equals("BOOL_VAL")){
                 parseBoolval();
             } else {
@@ -247,7 +264,9 @@ public class SemanticAnalyzer {
                     parseSpace();
                     parseCharList();
                 } else {
-                    //nothing
+                    AST.add("[" + currentString + "]");
+                    ASTdepth.add(depth);
+                    currentString = "";
                 }
             } else {
                 //nothing
@@ -271,13 +290,17 @@ public class SemanticAnalyzer {
 
     private void parseChar() {
         if(isntError) {
-            match("CHAR");
+            currentString = currentString + thisTokenStream.get(currentTokenPos).val;
+            currentTokenPos++;
+            currentToken = thisTokenStream.get(currentTokenPos).type;
         }
     }
 
     private void parseSpace() {
         if(isntError) {
-            match("_CHAR_SPACE");
+            currentString = currentString + thisTokenStream.get(currentTokenPos).val;
+            currentTokenPos++;
+            currentToken = thisTokenStream.get(currentTokenPos).type;
         }
     }
 
@@ -289,13 +312,13 @@ public class SemanticAnalyzer {
 
     private void parseBoolop() {
         if(isntError) {
-            AST.add("<Boolean Operation>");
-            ASTdepth.add(depth);
-            depth++;
-            debug("parseBoolOperation()");
+            // AST.add("<Boolean Operation>");
+            // ASTdepth.add(depth);
+            // depth++;
+            // debug("parseBoolOperation()");
             currentTokenPos++;
             currentToken = thisTokenStream.get(currentTokenPos).type;
-            depth--;
+            // depth--;
         }
     }
 
@@ -307,12 +330,13 @@ public class SemanticAnalyzer {
 
     private void parseIntop() {
         if(isntError) {
-            AST.add("<Integer Operation>");
-            ASTdepth.add(depth);
-            depth++;
-            debug("parseIntegerOperation()");
-            match("INTOP");
-            depth--;
+            // AST.add("<Integer Operation>");
+            // ASTdepth.add(depth);
+            // depth++;
+            // debug("parseIntegerOperation()");
+            currentTokenPos++;
+            currentToken = thisTokenStream.get(currentTokenPos).type;
+            // depth--;
         }
     }
 
@@ -332,6 +356,15 @@ public class SemanticAnalyzer {
                     //AND the token is the EOP, end the program and display the CST. Theoretically, if there is an error this code will never be reached.
                     debug("Semantic completed successfully");
                     System.out.println();
+                } else if(expectedToken.equals("ID")){
+                    if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val)) {
+
+                    } else {
+                        symbolTable.add(new Symbol(thisTokenStream.get(currentTokenPos).val, "ID", scope, symbolTable));
+                        System.out.print("-----------" + scope + depth);
+                    }
+                    //Increment the currentTokenPos and set the current token to the token in the stream at currentTokenPos.
+                    currentTokenPos++;
                 } else {
                     //Increment the currentTokenPos and set the current token to the token in the stream at currentTokenPos.
                     currentTokenPos++;
@@ -348,6 +381,15 @@ public class SemanticAnalyzer {
         }
     }
 
+    private boolean isInTable(ArrayList<Symbol> checkST, String checkName) {
+        for(int i = 0; i < checkST.size(); i++) {
+            if(checkST.get(i).name.equals(checkName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void printAST() {
         String leading = "";
         for(int i = 0; i < AST.size(); i++) {
@@ -356,6 +398,13 @@ public class SemanticAnalyzer {
             }
             System.out.println(leading + AST.get(i));
             leading = "";
+        }
+    }
+
+    private void printSymbolTable() {
+        System.out.println("Name | Type | isInit? | isUsed? | Scope");
+        for(int i = 0; i < symbolTable.size(); i++) {
+            System.out.println(symbolTable.get(i).name + "|" + symbolTable.get(i).type + "|" + symbolTable.get(i).isInit + "|" + symbolTable.get(i).isUsed + "|" + symbolTable.get(i).scope + symbolTable.get(i).scopeLetter);
         }
     }
 
