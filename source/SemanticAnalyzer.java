@@ -160,6 +160,9 @@ public class SemanticAnalyzer {
             debug("parseVariableDeclaration()");
             parseType();
             parseId();
+            // if(symbolTable.get(symbolTable.size()-1)) {
+
+            // }
             depth--;
         }
     }
@@ -251,6 +254,7 @@ public class SemanticAnalyzer {
     private void parseId() {
         if(isntError) {
             match("ID");
+
         }
     }
 
@@ -357,11 +361,14 @@ public class SemanticAnalyzer {
                     debug("Semantic completed successfully");
                     System.out.println();
                 } else if(expectedToken.equals("ID")){
-                    if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val)) {
-
+                    if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val) != null) {
+                        if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val).scope != scope) {
+                            symbolTable.add(new Symbol(thisTokenStream.get(currentTokenPos).val, "ID", scope));
+                        } else {
+                            //nothing yet
+                        }
                     } else {
-                        symbolTable.add(new Symbol(thisTokenStream.get(currentTokenPos).val, "ID", scope, symbolTable));
-                        System.out.print("-----------" + scope + depth);
+                        symbolTable.add(new Symbol(thisTokenStream.get(currentTokenPos).val, "ID", scope));
                     }
                     //Increment the currentTokenPos and set the current token to the token in the stream at currentTokenPos.
                     currentTokenPos++;
@@ -381,13 +388,25 @@ public class SemanticAnalyzer {
         }
     }
 
-    private boolean isInTable(ArrayList<Symbol> checkST, String checkName) {
+    private Symbol isInTable(ArrayList<Symbol> checkST, String checkName) {
         for(int i = 0; i < checkST.size(); i++) {
             if(checkST.get(i).name.equals(checkName)) {
-                return true;
+                return checkST.get(i);
             }
         }
-        return false;
+        return null;
+    }
+
+    private void test() {
+        String scopeLetter = "";
+        int num = 0;
+        for(int i = 0; i < symbolTable.size(); i++) {
+            if(symbolTable.get(i).scope == scope) {
+                num++;
+            }
+        }
+        scopeLetter = (char)(97 + num) + "";
+        num = 0;
     }
 
     private void printAST() {

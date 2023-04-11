@@ -13,19 +13,11 @@ public class Symbol {
     public int scope;
     public String scopeLetter = "";
 
-    public Symbol(String iName, String iType, int iScope, ArrayList<Symbol> symbolTable) {
+    public Symbol(String iName, String iType, int iScope) {
         name = iName;
         type = iType;
         isInit = false;
         isUsed = false;
         scope = iScope;
-        int num = 0;
-        for(int i = 0; i < symbolTable.size(); i++) {
-            if(symbolTable.get(i).scope == scope) {
-                num++;
-            }
-        }
-        scopeLetter = (char)(97 + num) + "";
-        num = 0;
     }
 }
