@@ -12,6 +12,7 @@ public class SemanticAnalyzer {
     private int depth = 0;
     private String currentString = "";
     private int scope = -1;
+    private boolean decState = false;
 
     private ArrayList<String> AST = new ArrayList<>();
     private ArrayList<Integer> ASTdepth = new ArrayList<>();
@@ -34,8 +35,10 @@ public class SemanticAnalyzer {
 
         currentToken = thisTokenStream.get(currentTokenPos).type;
         parse();
-        printAST();
-        printSymbolTable();
+        if(isntError) {
+            printAST();
+            printSymbolTable();
+        }
 
         AST.clear();
         ASTdepth.clear();
@@ -159,6 +162,7 @@ public class SemanticAnalyzer {
             depth++;
             debug("parseVariableDeclaration()");
             parseType();
+            decState = true;
             parseId();
             // if(symbolTable.get(symbolTable.size()-1)) {
 
@@ -361,14 +365,36 @@ public class SemanticAnalyzer {
                     debug("Semantic completed successfully");
                     System.out.println();
                 } else if(expectedToken.equals("ID")){
-                    if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val) != null) {
-                        if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val).scope != scope) {
-                            symbolTable.add(new Symbol(thisTokenStream.get(currentTokenPos).val, "ID", scope));
+                    //If we're not assigning the ID
+                    if(decState != true) {
+                        if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val) != null) {
+                            if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val).scope != scope) {
+                                symbolTable.add(new Symbol(thisTokenStream.get(currentTokenPos).val, "ID", scope));
+                            } else {
+                                //nothing yet
+                            }
                         } else {
-                            //nothing yet
+                            symbolTable.add(new Symbol(thisTokenStream.get(currentTokenPos).val, "ID", scope));
                         }
+                    //If we ARE assigning the ID
                     } else {
-                        symbolTable.add(new Symbol(thisTokenStream.get(currentTokenPos).val, "ID", scope));
+                        if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val) != null) {
+                            if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val).scope != scope) {
+                                symbolTable.add(new Symbol(thisTokenStream.get(currentTokenPos).val, "ID", scope));
+                                symbolTable.get(symbolTable.size()-1).isInit = true;
+                            } else {
+                                System.out.println("ERROR: The variable " + thisTokenStream.get(currentTokenPos).val + " is already declared in this scope!");
+                                debug("Semantic failed with 1 error");
+                                System.out.println();
+                                System.out.println("AST and Symbol Table for program " + prgCounter + ": Skipped due to PARSER error(s).");
+                                System.out.println();
+                                isntError = false;
+                            }
+                        } else {
+                            symbolTable.add(new Symbol(thisTokenStream.get(currentTokenPos).val, "ID", scope));
+                            symbolTable.get(symbolTable.size()-1).isInit = true;
+                        }
+                        decState = false;
                     }
                     //Increment the currentTokenPos and set the current token to the token in the stream at currentTokenPos.
                     currentTokenPos++;
