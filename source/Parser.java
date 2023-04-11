@@ -37,6 +37,7 @@ public class Parser {
         currentToken = thisTokenStream.get(currentTokenPos).type;
         System.out.println(")");
         parse();
+        semanticAnalyzer.main(thisTokenStream);
     }
 
     //Begins the parse
@@ -445,7 +446,6 @@ public class Parser {
             System.out.println(leading + CST.get(i));
             leading = "";
         }
-        semanticAnalyzer.main(CST, CSTdepth);
         System.out.println();
         CST.clear();
         CSTdepth.clear();

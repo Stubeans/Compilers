@@ -4,25 +4,32 @@ import java.util.ArrayList;
 
 public class SemanticAnalyzer {
 
+    private int currentTokenPos;
+    private String currentToken;
+    ArrayList<Token> thisTokenStream;
     private int prgCounter = 0;
+    private boolean isntError;
     private int depth = 0;
-    private int rebound = 0;
-    private int reboundDepth = 0;
 
     private ArrayList<String> AST = new ArrayList<>();
     private ArrayList<Integer> ASTdepth = new ArrayList<>();
 
     private ArrayList<Symbol> symbolTable = new ArrayList<>();
 
-    public void main(ArrayList<String> CST, ArrayList<Integer> CSTdepth) {
+    public void main(ArrayList<Token> tokenStream) {
 
+        depth = 0;
         prgCounter++;
+        isntError = true;
+        thisTokenStream = tokenStream;
+        currentTokenPos = 0;
 
         System.out.println();
         debug("STARTING SEMANTIC ANALYSIS ON PROGRAM " + prgCounter + ".");
         System.out.println();
 
-        ASTcreation(CST, CSTdepth);
+        currentToken = thisTokenStream.get(currentTokenPos).type;
+        parse();
         printAST();
 
         AST.clear();
@@ -32,81 +39,311 @@ public class SemanticAnalyzer {
 
     }
 
-    private void ASTcreation(ArrayList<String> CST, ArrayList<Integer> CSTdepth) {
-        for(int i = 0; i < CST.size(); i++) {
-            //Block
-            if(CST.get(i).equals("[{]")) {
-                AST.add("<Block>");
-                ASTdepth.add(depth);
-                depth++;
-            //endBlock
-            } else if(CST.get(i).equals("[}]")) {
-                depth--;
-            //VarDecl
-            } else if(CST.get(i).equals("<Variable Declaration>")) {
-                AST.add("<VarDecl>");
-                ASTdepth.add(depth);
-                depth++;
-                i = i+2;
-                AST.add(CST.get(i));
-                ASTdepth.add(depth);
-                i = i+2;
-                AST.add(CST.get(i));
-                ASTdepth.add(depth);
-                depth--;
-            //Assignment
-            } else if(CST.get(i).equals("<Assign Statement>")) {
-                AST.add("Assign");
-                ASTdepth.add(depth);
-                depth++;
-                i = i+2;
-                AST.add(CST.get(i));
-                ASTdepth.add(depth);
-            //Print
-            } else if(CST.get(i).equals("<Print Statement>")) {
-                AST.add("Print");
-                ASTdepth.add(depth);
-                depth++;
-            //intOp
-            } else if(CST.get(i).equals("<Integer Operation>")) {
-                AST.add("Intop");
-                ASTdepth.add(depth);
-                depth++;
-                AST.add(CST.get(i-1));
-                ASTdepth.add(depth);
-            //boolOp
-            } else if(CST.get(i).equals("<Boolean Operation>")) {
-                AST.add("Boolop");
-                ASTdepth.add(depth);
-                depth++;
-            //if
-            } else if(CST.get(i).equals("<If Statement>")) {
+    //Begins the parse
+    private void parse() {
+        //isntError is here to ensure that when an error is found, we don't keep recursively traversing our tokenStream.
+        //Or rather, technically, that we don't run the code inside the functions that are being recursively traversed.
+        if(isntError) {
+            parsePrg();
+        }
+    }
 
-            //while
-            } else if(CST.get(i).equals("<While Statement>")) {
+    //Function names self explanatory
+    private void parsePrg() {
+        if(isntError) {
+            parseBlock();
+        }
+    }
 
-            //NON-DEPTH++
-            //id
-            } else if(CST.get(i).equals("<Id>")) {
+    private void parseBlock() {
+        if(isntError) {
+            AST.add("<Block>");
+            ASTdepth.add(depth);
+            depth++;
+            debug("parseBlock()");
+            currentTokenPos++;
+            currentToken = thisTokenStream.get(currentTokenPos).type;
+            parseStmtList();
+            currentTokenPos++;
+            currentToken = thisTokenStream.get(currentTokenPos).type;
+            //At the end of every function ( except parsePrg ) decrement the depth counter
+            depth--;
+        }
+    }
 
-            //digit
-            } else if(CST.get(i).equals("<Digit>")) {
+    private void parseStmtList() {
+        if(isntError) {
+            //If the token is something we expect:
+            if(currentToken.equals("PRINT_STMT") | currentToken.equals("ID") | currentToken.equals("TYPE_INT") | currentToken.equals("TYPE_STR") | 
+            currentToken.equals("TYPE_BOOL") | currentToken.equals("WHILE_STMT") | currentToken.equals("IF_STMT") | currentToken.equals("OPEN_BLOCK")) {
+                parseStmt();
+                parseStmtList();
+            } else { //If there is no token
+                //do nothing
+            }
+        }
+    }
 
-            //charList
-            } else if(CST.get(i).equals("<Char List>")) {
+    private void parseStmt() {
+        if(isntError) {
+            //If it's something we expect
+            if(currentToken.equals("PRINT_STMT")) {
+                parsePrintStmt();
+            } else if(currentToken.equals("ID")) {
+                parseAssignStmt();
+            } else if(currentToken.equals("TYPE_INT") | currentToken.equals("TYPE_STR") | currentToken.equals("TYPE_BOOL")) {
+                parseVarDecl();
+            } else if(currentToken.equals("WHILE_STMT")) {
+                parseWhileStmt();
+            } else if(currentToken.equals("IF_STMT")) {
+                parseIfStmt();
+            } else if(currentToken.equals("OPEN_BLOCK")) {
+                parseBlock();
+            } else { //Else display an error saying what we got, and what we expected
+                isntError = false;
+            }
+        }
+    }
 
-            //boolval
-            } else if(CST.get(i).equals("<Boolean Value>")) {
+    private void parsePrintStmt() {
+        if(isntError) {
+            AST.add("<Print Statement>");
+            ASTdepth.add(depth);
+            depth++;
+            debug("parsePrintStatement()");
+            currentTokenPos++;
+            currentToken = thisTokenStream.get(currentTokenPos).type;
+            currentTokenPos++;
+            currentToken = thisTokenStream.get(currentTokenPos).type;
+            parseExpr();
+            currentTokenPos++;
+            currentToken = thisTokenStream.get(currentTokenPos).type;
+            depth--;
+        }
+    }
 
-            //int
-            } else if(CST.get(i).equals("[int]")) {
+    private void parseAssignStmt() {
+        if(isntError) {
+            AST.add("<Assign Statement>");
+            ASTdepth.add(depth);
+            depth++;
+            debug("parseAssignmentStatement()");
+            parseId();
+            currentTokenPos++;
+            currentToken = thisTokenStream.get(currentTokenPos).type;
+            parseExpr();
+            depth--;
+        }
+    }
 
-            //string
-            }  else if(CST.get(i).equals("[string]")) {
+    private void parseVarDecl() {
+        if(isntError) {
+            AST.add("<Variable Declaration>");
+            ASTdepth.add(depth);
+            depth++;
+            debug("parseVariableDeclaration()");
+            parseType();
+            parseId();
+            depth--;
+        }
+    }
 
-            //bool
-            } else if(CST.get(i).equals("[boolean]")) {
+    private void parseWhileStmt() {
+        if(isntError) {
+            AST.add("<While Statement>");
+            ASTdepth.add(depth);
+            depth++;
+            debug("parseWhileStatement()");
+            currentTokenPos++;
+            currentToken = thisTokenStream.get(currentTokenPos).type;
+            parseBoolExpr();
+            parseBlock();
+            depth--;
+        }
+    }
 
+    private void parseIfStmt() {
+        if(isntError) {
+            AST.add("<If Statement>");
+            ASTdepth.add(depth);
+            depth++;
+            debug("parseIfStatement()");
+            currentTokenPos++;
+            currentToken = thisTokenStream.get(currentTokenPos).type;
+            parseBoolExpr();
+            parseBlock();
+            depth--;
+        }
+    }
+    
+    private void parseExpr() {
+        if(isntError) {
+            if(currentToken.equals("DIGIT")) {
+                parseIntExpr();
+            } else if(currentToken.equals("OPEN_STR")) {
+                parseStringExpr();
+            } else if(currentToken.equals("OPEN_PAREN")) {
+                parseBoolExpr();
+            } else if(currentToken.equals("BOOL_VAL")) {
+                parseBoolval();
+            } else if(currentToken.equals("ID")) {
+                parseId();
+            } else {
+                isntError = false;
+            }
+        }
+    }
+
+    private void parseIntExpr() {
+        if(isntError) {
+            parseDigit();
+            if(currentToken == "INTOP") {
+                parseIntop();
+                parseExpr();
+            }
+        }
+    }
+
+    private void parseStringExpr() {
+        if(isntError) {
+            currentTokenPos++;
+            currentToken = thisTokenStream.get(currentTokenPos).type;
+            parseCharList();
+            currentTokenPos++;
+            currentToken = thisTokenStream.get(currentTokenPos).type;
+        }
+    }
+
+    private void parseBoolExpr() {
+        if(isntError) {
+            if(currentToken.equals("OPEN_PAREN")) {
+                currentTokenPos++;
+                currentToken = thisTokenStream.get(currentTokenPos).type;
+                parseExpr();
+                parseBoolop();
+                parseExpr();
+                currentTokenPos++;
+            } else if(currentToken.equals("BOOL_VAL")){
+                parseBoolval();
+            } else {
+                isntError = false;
+            }
+        }
+    }
+
+    private void parseId() {
+        if(isntError) {
+            match("ID");
+        }
+    }
+
+    private void parseCharList() {
+        if(isntError) {
+            if(currentToken.length() >= 4) {
+                if(currentToken.substring(0, 4).equals("CHAR")) {
+                    parseChar();
+                    parseCharList();
+                } else if(currentToken.equals("_CHAR_SPACE")) {
+                    parseSpace();
+                    parseCharList();
+                } else {
+                    //nothing
+                }
+            } else {
+                //nothing
+            }
+        }
+    }
+
+    private void parseType() {
+        if(isntError) {
+            if(currentToken.equals("TYPE_INT")) {
+                match("TYPE_INT");
+            } else if(currentToken.equals("TYPE_STR")) {
+                match("TYPE_STR");
+            } else if(currentToken.equals("TYPE_BOOL")) {
+                match("TYPE_BOOL");
+            } else {
+                isntError = false;
+            }
+        }
+    }
+
+    private void parseChar() {
+        if(isntError) {
+            match("CHAR");
+        }
+    }
+
+    private void parseSpace() {
+        if(isntError) {
+            match("_CHAR_SPACE");
+        }
+    }
+
+    private void parseDigit() {
+        if(isntError) {
+            match("DIGIT");
+        }
+    }
+
+    private void parseBoolop() {
+        if(isntError) {
+            AST.add("<Boolean Operation>");
+            ASTdepth.add(depth);
+            depth++;
+            debug("parseBoolOperation()");
+            currentTokenPos++;
+            currentToken = thisTokenStream.get(currentTokenPos).type;
+            depth--;
+        }
+    }
+
+    private void parseBoolval() {
+        if(isntError) {
+            match("BOOL_VAL");
+        }
+    }
+
+    private void parseIntop() {
+        if(isntError) {
+            AST.add("<Integer Operation>");
+            ASTdepth.add(depth);
+            depth++;
+            debug("parseIntegerOperation()");
+            match("INTOP");
+            depth--;
+        }
+    }
+
+    private void match(String expectedToken) {
+        if(isntError) {
+            //If the token is a CHAR_<A-Z>, just cut it down to CHAR for the match 
+            if(currentToken.length() >= 4) {
+                if(currentToken.substring(0, 4).equals("CHAR")) {
+                    currentToken = currentToken.substring(0, 4);
+                }
+            }
+            //If the token does match,
+            if(currentToken.equals(expectedToken)) {
+                AST.add("[" + thisTokenStream.get(currentTokenPos).val + "]");
+                ASTdepth.add(depth);
+                if(expectedToken.equals("EOP")) {
+                    //AND the token is the EOP, end the program and display the CST. Theoretically, if there is an error this code will never be reached.
+                    debug("Semantic completed successfully");
+                    System.out.println();
+                } else {
+                    //Increment the currentTokenPos and set the current token to the token in the stream at currentTokenPos.
+                    currentTokenPos++;
+                }
+                currentToken = thisTokenStream.get(currentTokenPos).type;
+            } else {
+                debug("ERROR: Found token: " + currentToken + ", Expected token: " + expectedToken + " on line " + thisTokenStream.get(currentTokenPos).pos);
+                debug("Semantic failed with 1 error");
+                System.out.println();
+                System.out.println("AST for program " + prgCounter + ": Skipped due to PARSER error(s).");
+                System.out.println();
+                isntError = false;
             }
         }
     }
