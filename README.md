@@ -21,8 +21,4 @@ java source/Compiler.java Progs/testCases.txt
 
 : PLEASE READ THE FOLLOWING :
 
-WARNING: Project 3 works as much in my code as it does in my head, ie: not at all.
-If You are reading this as is, Project 3 is not close to being functional, and I am hard at work desperately trying to find a way to fix it.
-I'll try to save you some time and agree that this is worth 0 points.
-
-While I do produce an extremely limited AST, it is no wheres near helpful. I also have no symbol table production implemented.
+Project 3 is currently being worked on. At the moment, a crappy, non-complete AST is produced.
