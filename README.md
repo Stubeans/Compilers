@@ -19,7 +19,7 @@ Whatever file path you enter in place of -input-here-, please use / slashes, ins
 Example:
 java source/Compiler.java Progs/testCases.txt
 
-~: PLEASE READ THE FOLLOWING :~
+: PLEASE READ THE FOLLOWING :
 
 WARNING: Project 3 works as much in my code as it does in my head, ie: not at all.
 If You are reading this as is, Project 3 is not close to being functional, and I am hard at work desperately trying to find a way to fix it.
