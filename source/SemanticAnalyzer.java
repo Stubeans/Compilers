@@ -6,6 +6,8 @@ public class SemanticAnalyzer {
 
     private int prgCounter = 0;
     private int depth = 0;
+    private int rebound = 0;
+    private int reboundDepth = 0;
 
     private ArrayList<String> AST = new ArrayList<>();
     private ArrayList<Integer> ASTdepth = new ArrayList<>();
@@ -20,7 +22,7 @@ public class SemanticAnalyzer {
         debug("STARTING SEMANTIC ANALYSIS ON PROGRAM " + prgCounter + ".");
         System.out.println();
 
-        ASTcreation(CST);
+        ASTcreation(CST, CSTdepth);
         printAST();
 
         AST.clear();
@@ -30,7 +32,7 @@ public class SemanticAnalyzer {
 
     }
 
-    private void ASTcreation(ArrayList<String> CST) {
+    private void ASTcreation(ArrayList<String> CST, ArrayList<Integer> CSTdepth) {
         for(int i = 0; i < CST.size(); i++) {
             //Block
             if(CST.get(i).equals("[{]")) {
