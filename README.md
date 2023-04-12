@@ -21,4 +21,6 @@ java source/Compiler.java Progs/testCases.txt
 
 : PLEASE READ THE FOLLOWING :
 
-Project 3 is currently being worked on. At the moment, a semi-normal, hopefully correct AST is produced. A Limited Symbol table is also produced. However, Scope/Type checking is not implemented correctly yet.
+Project 3 is currently being worked on. At the moment, a semi-normal, hopefully correct AST is produced. A Limited Symbol table is also produced. Scope/Type checking being worked on now.
+
+Using Pro2cases.txt to test Scope/Type checking
