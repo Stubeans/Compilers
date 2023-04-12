@@ -23,10 +23,9 @@ $
     print("hello")
     y = 4 + (x == 1)
     if(x==y) {
-        
+        boolean x
     }
     {
         string x
-
     }
 }$

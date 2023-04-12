@@ -360,19 +360,15 @@ public class SemanticAnalyzer {
             if(currentToken.equals(expectedToken)) {
                 AST.add("[" + thisTokenStream.get(currentTokenPos).val + "]");
                 ASTdepth.add(depth);
-                if(expectedToken.equals("EOP")) {
-                    //AND the token is the EOP, end the program and display the CST. Theoretically, if there is an error this code will never be reached.
-                    debug("Semantic completed successfully");
-                    System.out.println();
-                } else if(expectedToken.equals("ID")){
+                if(expectedToken.equals("ID")) {
                     //If we're not assigning the ID
                     if(decState != true) {
-                        if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val) != null) {
+                        if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val, scope) != null) {
                             //If it exists below me
-                            if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val).scope < scope) {
-                                isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val).isUsed = true;
+                            if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val, scope).scope < scope) {
+                                isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val, scope).isUsed = true;
                             //If it exists above of me
-                            } else if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val).scope > scope) {
+                            } else if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val, scope).scope > scope) {
                                 System.out.println("ERROR: The variable " + thisTokenStream.get(currentTokenPos).val + " isn't yet declared!");
                                 debug("Semantic failed with 1 error");
                                 System.out.println();
@@ -381,7 +377,7 @@ public class SemanticAnalyzer {
                                 isntError = false;
                             //If it exists parrallel to me
                             } else {
-                                isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val).isUsed = true;
+                                isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val, scope).isUsed = true;
                             }
                         } else {
                             System.out.println("ERROR: The variable " + thisTokenStream.get(currentTokenPos).val + " isn't yet declared!");
@@ -393,14 +389,14 @@ public class SemanticAnalyzer {
                         }
                     //If we ARE assigning the ID
                     } else {
-                        if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val) != null) {
+                        if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val, scope) != null) {
                             //If it exists below me
-                            if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val).scope < scope) {
-                                symbolTable.add(new Symbol(thisTokenStream.get(currentTokenPos).val, "ID", scope));
+                            if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val, scope).scope < scope) {
+                                symbolTable.add(new Symbol(thisTokenStream.get(currentTokenPos).val, thisTokenStream.get(currentTokenPos-1).val, scope));
                                 symbolTable.get(symbolTable.size()-1).isInit = true;
                             //If it exists above of me
-                            } else if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val).scope > scope) {
-                                symbolTable.add(new Symbol(thisTokenStream.get(currentTokenPos).val, "ID", scope));
+                            } else if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val, scope).scope > scope) {
+                                symbolTable.add(new Symbol(thisTokenStream.get(currentTokenPos).val, thisTokenStream.get(currentTokenPos-1).val, scope));
                                 symbolTable.get(symbolTable.size()-1).isInit = true;
                             //If it exists parrallel to me
                             } else {
@@ -412,7 +408,7 @@ public class SemanticAnalyzer {
                                 isntError = false;
                             }
                         } else {
-                            symbolTable.add(new Symbol(thisTokenStream.get(currentTokenPos).val, "ID", scope));
+                            symbolTable.add(new Symbol(thisTokenStream.get(currentTokenPos).val, thisTokenStream.get(currentTokenPos-1).val, scope));
                             symbolTable.get(symbolTable.size()-1).isInit = true;
                         }
                         decState = false;
@@ -435,9 +431,9 @@ public class SemanticAnalyzer {
         }
     }
 
-    private Symbol isInTable(ArrayList<Symbol> checkST, String checkName) {
+    private Symbol isInTable(ArrayList<Symbol> checkST, String checkName, int scope) {
         for(int i = 0; i < checkST.size(); i++) {
-            if(checkST.get(i).name.equals(checkName)) {
+            if(checkST.get(i).name.equals(checkName) && checkST.get(i).scope == scope) {
                 return checkST.get(i);
             }
         }
@@ -454,6 +450,21 @@ public class SemanticAnalyzer {
         }
         scopeLetter = (char)(97 + num) + "";
         num = 0;
+    }
+
+    private void typeCheck() {
+        int scope = -1;
+        boolean notDone = true;
+        for(int i = 0; i < AST.size(); i++) {
+            if(AST.get(i).equals("<Block>")) {
+                scope++;
+            } else if(AST.get(i).equals("<Assign Statement>")) {
+                while(notDone) {
+                    i++;
+
+                }
+            }
+        }
     }
 
     private void printAST() {
