@@ -65,9 +65,11 @@ public class SemanticAnalyzer {
                 currentTokenPos++;
                 currentToken = thisTokenStream.get(currentTokenPos).type;
             } else { //End of file code
-                System.out.println();
-                debug("AST completed successfully");
-                System.out.println();
+                if(isntError) {
+                    System.out.println();
+                    debug("AST completed successfully");
+                    System.out.println();
+                }
             }
         }
     }
