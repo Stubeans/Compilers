@@ -370,7 +370,7 @@ public class SemanticAnalyzer {
                         if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val) != null) {
                             //If it exists below me
                             if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val).scope < scope) {
-                                //Do nothing
+                                isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val).isUsed = true;
                             //If it exists above of me
                             } else if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val).scope > scope) {
                                 System.out.println("ERROR: The variable " + thisTokenStream.get(currentTokenPos).val + " isn't yet declared!");
@@ -381,7 +381,7 @@ public class SemanticAnalyzer {
                                 isntError = false;
                             //If it exists parrallel to me
                             } else {
-                                //Do nothing
+                                isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val).isUsed = true;
                             }
                         } else {
                             System.out.println("ERROR: The variable " + thisTokenStream.get(currentTokenPos).val + " isn't yet declared!");
