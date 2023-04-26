@@ -14,6 +14,7 @@ public class SemanticAnalyzer {
     private int scope = -1;
     private boolean decState = false;
     private String lastID = "";
+    
 
     private ArrayList<String> AST = new ArrayList<>();
     private ArrayList<Integer> ASTdepth = new ArrayList<>();
@@ -146,14 +147,29 @@ public class SemanticAnalyzer {
 
     private void parseAssignStmt() {
         if(isntError) {
+            String idType;
             AST.add("<Assign Statement>");
             ASTdepth.add(depth);
             depth++;
             debug("parseAssignmentStatement()");
             parseId();
+            if(isInTableS(symbolTable, lastID, scope) != null) {
+                idType = isInTableS(symbolTable, lastID, scope).type;
+            } else {
+                idType = "error";
+            }
             currentTokenPos++;
             currentToken = thisTokenStream.get(currentTokenPos).type;
-            parseExpr();
+            String pos = thisTokenStream.get(currentTokenPos).pos;
+            String exprType = parseExpr();
+            if(!idType.equals(exprType)) {
+                System.out.println("ERROR: Can't assign a(n) " + exprType + " to an Id who's type is " + idType + " on line " + pos);
+                debug("Semantic failed with 1 error");
+                System.out.println();
+                System.out.println("AST and Symbol Table for program " + prgCounter + ": Skipped due to SEMANTIC error(s).");
+                System.out.println();
+                isntError = false;
+            }
             depth--;
         }
     }
@@ -212,10 +228,10 @@ public class SemanticAnalyzer {
                 return "string";
             } else if(currentToken.equals("OPEN_PAREN")) {
                 parseBoolExpr();
-                return "bool";
+                return "boolean";
             } else if(currentToken.equals("BOOL_VAL")) {
                 parseBoolval();
-                return "bool";
+                return "boolean";
             } else if(currentToken.equals("ID")) {
                 parseId();
                 if(isInTableS(symbolTable, lastID, scope) == null) {
@@ -234,8 +250,19 @@ public class SemanticAnalyzer {
         if(isntError) {
             parseDigit();
             if(currentToken == "INTOP") {
+                String pos = thisTokenStream.get(currentTokenPos).pos;
                 parseIntop();
-                parseExpr();
+                String type = parseExpr();
+                if(type.equals("int")) {
+                    //nothing
+                } else {
+                    System.out.println("ERROR: Can't add a(n) " + type + " to an int on line " + pos);
+                    debug("Semantic failed with 1 error");
+                    System.out.println();
+                    System.out.println("AST and Symbol Table for program " + prgCounter + ": Skipped due to SEMANTIC error(s).");
+                    System.out.println();
+                    isntError = false;
+                }
             }
         }
     }
@@ -256,12 +283,13 @@ public class SemanticAnalyzer {
                 currentTokenPos++;
                 currentToken = thisTokenStream.get(currentTokenPos).type;
                 String firstType = parseExpr();
+                String pos = thisTokenStream.get(currentTokenPos).pos;
                 parseBoolop();
                 String secondType = parseExpr();
                 if(firstType.equals(secondType)) {
                     //nothing
                 } else {
-                    System.out.println("ERROR: Can't compare a(n) " + firstType + " to a " + secondType + " on line " + thisTokenStream.get(currentTokenPos).pos);
+                    System.out.println("ERROR: Can't compare a(n) " + firstType + " to a(n) " + secondType + " on line " + pos);
                     debug("Semantic failed with 1 error");
                     System.out.println();
                     System.out.println("AST and Symbol Table for program " + prgCounter + ": Skipped due to SEMANTIC error(s).");
