@@ -483,6 +483,7 @@ public class SemanticAnalyzer {
         }
     }
 
+    //may be useless now
     private Symbol isInTable(ArrayList<Symbol> checkST, String checkName, int scope) {
         for(int i = 0; i < checkST.size(); i++) {
             if(checkST.get(i).name.equals(checkName) && checkST.get(i).scope == scope) {
@@ -492,6 +493,7 @@ public class SemanticAnalyzer {
         return null;
     }
 
+    //same as isInTable but also backtracks thru lesser scopes
     private Symbol isInTableS(ArrayList<Symbol> checkST, String checkName, int scope) {
         for(int i = scope; i > -1; i--) {
             for(int j = 0; j < checkST.size(); j++) {
@@ -513,27 +515,6 @@ public class SemanticAnalyzer {
         }
         scopeLetter = (char)(97 + num) + "";
         num = 0;
-    }
-
-    private void typeCheck() {
-        int scope = -1;
-        boolean notDone = true;
-        for(int i = 0; i < AST.size(); i++) {
-            if(AST.get(i).equals("<Block>")) {
-                scope++;
-            } else if(AST.get(i).equals("<Assign Statement>")) {
-                while(notDone) {
-                    i++;
-
-                }
-            }
-        }
-    }
-
-    private void checkBehind(int currentPos, int targetDepth) {
-        for(int i = currentPos - 1; i > -1; i--) {
-            //if(thisTokenStream.get(i))
-        }
     }
 
     private void printAST() {
