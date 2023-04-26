@@ -13,6 +13,7 @@ public class SemanticAnalyzer {
     private String currentString = "";
     private int scope = -1;
     private boolean decState = false;
+    private String lastID = "";
 
     private ArrayList<String> AST = new ArrayList<>();
     private ArrayList<Integer> ASTdepth = new ArrayList<>();
@@ -201,22 +202,32 @@ public class SemanticAnalyzer {
         }
     }
     
-    private void parseExpr() {
+    private String parseExpr() {
         if(isntError) {
             if(currentToken.equals("DIGIT")) {
                 parseIntExpr();
+                return "int";
             } else if(currentToken.equals("OPEN_STR")) {
                 parseStringExpr();
+                return "string";
             } else if(currentToken.equals("OPEN_PAREN")) {
                 parseBoolExpr();
+                return "bool";
             } else if(currentToken.equals("BOOL_VAL")) {
                 parseBoolval();
+                return "bool";
             } else if(currentToken.equals("ID")) {
                 parseId();
+                if(isInTableS(symbolTable, lastID, scope) == null) {
+                    return "error";
+                }
+                return isInTableS(symbolTable, lastID, scope).type;
             } else {
                 isntError = false;
+                return "error";
             }
         }
+        return "error";
     }
 
     private void parseIntExpr() {
@@ -244,9 +255,19 @@ public class SemanticAnalyzer {
             if(currentToken.equals("OPEN_PAREN")) {
                 currentTokenPos++;
                 currentToken = thisTokenStream.get(currentTokenPos).type;
-                parseExpr();
+                String firstType = parseExpr();
                 parseBoolop();
-                parseExpr();
+                String secondType = parseExpr();
+                if(firstType.equals(secondType)) {
+                    //nothing
+                } else {
+                    System.out.println("ERROR: Can't compare a(n) " + firstType + " to a " + secondType + " on line " + thisTokenStream.get(currentTokenPos).pos);
+                    debug("Semantic failed with 1 error");
+                    System.out.println();
+                    System.out.println("AST and Symbol Table for program " + prgCounter + ": Skipped due to SEMANTIC error(s).");
+                    System.out.println();
+                    isntError = false;
+                }
                 currentTokenPos++;
                 currentToken = thisTokenStream.get(currentTokenPos).type;
             } else if(currentToken.equals("BOOL_VAL")){
@@ -365,39 +386,40 @@ public class SemanticAnalyzer {
                 if(expectedToken.equals("ID")) {
                     //If we're not assigning the ID
                     if(decState != true) {
-                        if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val, scope) != null) {
+                        if(isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope) != null) {
                             //If it exists below me
-                            if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val, scope).scope < scope) {
-                                isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val, scope).isUsed = true;
+                            if(isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope).scope < scope) {
+                                isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope).isUsed = true;
                             //If it exists above of me
-                            } else if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val, scope).scope > scope) {
+                            } else if(isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope).scope > scope) {
                                 System.out.println("ERROR: The variable " + thisTokenStream.get(currentTokenPos).val + " isn't yet declared!");
                                 debug("Semantic failed with 1 error");
                                 System.out.println();
-                                System.out.println("AST and Symbol Table for program " + prgCounter + ": Skipped due to PARSER error(s).");
+                                System.out.println("AST and Symbol Table for program " + prgCounter + ": Skipped due to SEMANTIC error(s).");
                                 System.out.println();
                                 isntError = false;
                             //If it exists parrallel to me
                             } else {
-                                isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val, scope).isUsed = true;
+                                isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope).isUsed = true;
                             }
                         } else {
                             System.out.println("ERROR: The variable " + thisTokenStream.get(currentTokenPos).val + " isn't yet declared!");
                             debug("Semantic failed with 1 error");
                             System.out.println();
-                            System.out.println("AST and Symbol Table for program " + prgCounter + ": Skipped due to PARSER error(s).");
+                            System.out.println("AST and Symbol Table for program " + prgCounter + ": Skipped due to SEMANTIC error(s).");
                             System.out.println();
                             isntError = false;
                         }
+                        lastID = thisTokenStream.get(currentTokenPos).val;
                     //If we ARE assigning the ID
                     } else {
-                        if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val, scope) != null) {
+                        if(isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope) != null) {
                             //If it exists below me
-                            if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val, scope).scope < scope) {
+                            if(isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope).scope < scope) {
                                 symbolTable.add(new Symbol(thisTokenStream.get(currentTokenPos).val, thisTokenStream.get(currentTokenPos-1).val, scope));
                                 symbolTable.get(symbolTable.size()-1).isInit = true;
                             //If it exists above of me
-                            } else if(isInTable(symbolTable, thisTokenStream.get(currentTokenPos).val, scope).scope > scope) {
+                            } else if(isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope).scope > scope) {
                                 symbolTable.add(new Symbol(thisTokenStream.get(currentTokenPos).val, thisTokenStream.get(currentTokenPos-1).val, scope));
                                 symbolTable.get(symbolTable.size()-1).isInit = true;
                             //If it exists parrallel to me
@@ -405,7 +427,7 @@ public class SemanticAnalyzer {
                                 System.out.println("ERROR: The variable " + thisTokenStream.get(currentTokenPos).val + " is already declared in this scope!");
                                 debug("Semantic failed with 1 error");
                                 System.out.println();
-                                System.out.println("AST and Symbol Table for program " + prgCounter + ": Skipped due to PARSER error(s).");
+                                System.out.println("AST and Symbol Table for program " + prgCounter + ": Skipped due to SEMANTIC error(s).");
                                 System.out.println();
                                 isntError = false;
                             }
@@ -426,7 +448,7 @@ public class SemanticAnalyzer {
                 debug("ERROR: Found token: " + currentToken + ", Expected token: " + expectedToken + " on line " + thisTokenStream.get(currentTokenPos).pos);
                 debug("Semantic failed with 1 error");
                 System.out.println();
-                System.out.println("AST for program " + prgCounter + ": Skipped due to PARSER error(s).");
+                System.out.println("AST for program " + prgCounter + ": Skipped due to SEMANTIC error(s).");
                 System.out.println();
                 isntError = false;
             }
@@ -437,6 +459,17 @@ public class SemanticAnalyzer {
         for(int i = 0; i < checkST.size(); i++) {
             if(checkST.get(i).name.equals(checkName) && checkST.get(i).scope == scope) {
                 return checkST.get(i);
+            }
+        }
+        return null;
+    }
+
+    private Symbol isInTableS(ArrayList<Symbol> checkST, String checkName, int scope) {
+        for(int i = scope; i > -1; i--) {
+            for(int j = 0; j < checkST.size(); j++) {
+                if(checkST.get(j).name.equals(checkName) && checkST.get(j).scope == i) {
+                    return checkST.get(j);
+                }
             }
         }
         return null;
@@ -469,6 +502,12 @@ public class SemanticAnalyzer {
         }
     }
 
+    private void checkBehind(int currentPos, int targetDepth) {
+        for(int i = currentPos - 1; i > -1; i--) {
+            //if(thisTokenStream.get(i))
+        }
+    }
+
     private void printAST() {
         String leading = "";
         for(int i = 0; i < AST.size(); i++) {
@@ -481,10 +520,12 @@ public class SemanticAnalyzer {
     }
 
     private void printSymbolTable() {
+        System.out.println();
         System.out.println("Name | Type | isInit? | isUsed? | Scope");
         for(int i = 0; i < symbolTable.size(); i++) {
             System.out.println(symbolTable.get(i).name + "|" + symbolTable.get(i).type + "|" + symbolTable.get(i).isInit + "|" + symbolTable.get(i).isUsed + "|" + symbolTable.get(i).scope + symbolTable.get(i).scopeLetter);
         }
+        System.out.println();
     }
 
     private void debug(String message) {

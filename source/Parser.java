@@ -37,7 +37,12 @@ public class Parser {
         currentToken = thisTokenStream.get(currentTokenPos).type;
         System.out.println(")");
         parse();
-        semanticAnalyzer.main(thisTokenStream);
+        if(isntError) {
+            semanticAnalyzer.main(thisTokenStream);
+        } else {
+            System.out.println("Semantic Analyzing for program " + prgCounter + ": Skipped due to PARSER error(s).");
+        }
+        
     }
 
     //Begins the parse
