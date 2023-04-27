@@ -1,0 +1,65 @@
+{
+  int a
+  {
+    boolean b
+    {
+      string c
+      {
+        a = 5
+        b = false
+        c = "inta"
+      }
+      print(c)
+    }
+    print(b)
+  }
+  print(a)
+}$
+
+{
+ int a
+ a = "not an int"
+}$
+
+{
+  int a
+  string b
+  b = a
+}$
+
+{
+  int a
+  {
+    string a
+    int b
+    b = a
+  }
+}$
+
+{
+  boolean b
+  b = "false"
+}$
+
+{
+  int a
+  a = 2 + "what"
+}$
+
+{
+  int a
+  {
+    int b
+    {
+      string c
+      {
+        a = 5
+        b = 6
+        c = "inta"
+      }
+      print(c)
+    }
+  }
+  print(b)
+  print(a)
+}$

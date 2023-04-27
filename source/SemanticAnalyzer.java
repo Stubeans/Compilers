@@ -423,7 +423,7 @@ public class SemanticAnalyzer {
                                 isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope, findScopeLetter(scope)).isUsed = true;
                             //If it exists above of me
                             } else if(isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope, findScopeLetter(scope)).scope > scope) {
-                                System.out.println("ERROR: The variable " + thisTokenStream.get(currentTokenPos).val + " isn't yet declared!");
+                                System.out.println("ERROR: The variable " + thisTokenStream.get(currentTokenPos).val + " isn't yet declared! " + thisTokenStream.get(currentTokenPos).pos);
                                 debug("Semantic failed with 1 error");
                                 System.out.println();
                                 System.out.println("AST and Symbol Table for program " + prgCounter + ": Skipped due to SEMANTIC error(s).");
@@ -434,7 +434,7 @@ public class SemanticAnalyzer {
                                 isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope, findScopeLetter(scope)).isUsed = true;
                             }
                         } else {
-                            System.out.println("ERROR: The variable " + thisTokenStream.get(currentTokenPos).val + " isn't yet declared!");
+                            System.out.println("ERROR: The variable " + thisTokenStream.get(currentTokenPos).val + " isn't yet declared! " + thisTokenStream.get(currentTokenPos).pos);
                             debug("Semantic failed with 1 error");
                             System.out.println();
                             System.out.println("AST and Symbol Table for program " + prgCounter + ": Skipped due to SEMANTIC error(s).");
@@ -461,7 +461,7 @@ public class SemanticAnalyzer {
                                 System.out.println(scope);
                                 System.out.println(findScopeLetter(scope));
                                 printSymbolTable();
-                                System.out.println("ERROR: The variable " + thisTokenStream.get(currentTokenPos).val + " is already declared in this scope!");
+                                System.out.println("ERROR: The variable " + thisTokenStream.get(currentTokenPos).val + " is already declared in this scope! " + thisTokenStream.get(currentTokenPos).pos);
                                 debug("Semantic failed with 1 error");
                                 System.out.println();
                                 System.out.println("AST and Symbol Table for program " + prgCounter + ": Skipped due to SEMANTIC error(s).");
