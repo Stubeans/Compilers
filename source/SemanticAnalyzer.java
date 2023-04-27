@@ -14,6 +14,7 @@ public class SemanticAnalyzer {
     private int scope = -1;
     private boolean decState = false;
     private String lastID = "";
+    ArrayList<Integer> scopeList = new ArrayList<>();
     
 
     private ArrayList<String> AST = new ArrayList<>();
@@ -45,6 +46,7 @@ public class SemanticAnalyzer {
         AST.clear();
         ASTdepth.clear();
         symbolTable.clear();
+        scopeList.clear();
 
         //symbolTable.add(new Symbol("0", "type", 0, symbolTable));
 
@@ -82,6 +84,7 @@ public class SemanticAnalyzer {
             ASTdepth.add(depth);
             depth++;
             scope++;
+            scopeList.add(scope);
             debug("parseBlock()");
             currentTokenPos++;
             currentToken = thisTokenStream.get(currentTokenPos).type;
@@ -153,8 +156,8 @@ public class SemanticAnalyzer {
             depth++;
             debug("parseAssignmentStatement()");
             parseId();
-            if(isInTableS(symbolTable, lastID, scope) != null) {
-                idType = isInTableS(symbolTable, lastID, scope).type;
+            if(isInTableS(symbolTable, lastID, scope, findScopeLetter(scope)) != null) {
+                idType = isInTableS(symbolTable, lastID, scope, findScopeLetter(scope)).type;
             } else {
                 idType = "error";
             }
@@ -234,10 +237,10 @@ public class SemanticAnalyzer {
                 return "boolean";
             } else if(currentToken.equals("ID")) {
                 parseId();
-                if(isInTableS(symbolTable, lastID, scope) == null) {
+                if(isInTableS(symbolTable, lastID, scope, findScopeLetter(scope)) == null) {
                     return "error";
                 }
-                return isInTableS(symbolTable, lastID, scope).type;
+                return isInTableS(symbolTable, lastID, scope, findScopeLetter(scope)).type;
             } else {
                 isntError = false;
                 return "error";
@@ -414,12 +417,12 @@ public class SemanticAnalyzer {
                 if(expectedToken.equals("ID")) {
                     //If we're not assigning the ID
                     if(decState != true) {
-                        if(isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope) != null) {
+                        if(isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope, findScopeLetter(scope)) != null) {
                             //If it exists below me
-                            if(isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope).scope < scope) {
-                                isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope).isUsed = true;
+                            if(isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope, findScopeLetter(scope)).scope < scope) {
+                                isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope, findScopeLetter(scope)).isUsed = true;
                             //If it exists above of me
-                            } else if(isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope).scope > scope) {
+                            } else if(isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope, findScopeLetter(scope)).scope > scope) {
                                 System.out.println("ERROR: The variable " + thisTokenStream.get(currentTokenPos).val + " isn't yet declared!");
                                 debug("Semantic failed with 1 error");
                                 System.out.println();
@@ -428,7 +431,7 @@ public class SemanticAnalyzer {
                                 isntError = false;
                             //If it exists parrallel to me
                             } else {
-                                isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope).isUsed = true;
+                                isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope, findScopeLetter(scope)).isUsed = true;
                             }
                         } else {
                             System.out.println("ERROR: The variable " + thisTokenStream.get(currentTokenPos).val + " isn't yet declared!");
@@ -441,17 +444,23 @@ public class SemanticAnalyzer {
                         lastID = thisTokenStream.get(currentTokenPos).val;
                     //If we ARE assigning the ID
                     } else {
-                        if(isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope) != null) {
+                        if(isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope, findScopeLetter(scope)) != null) {
                             //If it exists below me
-                            if(isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope).scope < scope) {
+                            if(isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope, findScopeLetter(scope)).scope < scope) {
                                 symbolTable.add(new Symbol(thisTokenStream.get(currentTokenPos).val, thisTokenStream.get(currentTokenPos-1).val, scope));
                                 symbolTable.get(symbolTable.size()-1).isInit = true;
+                                symbolTable.get(symbolTable.size()-1).scopeLetter = findScopeLetter(scope);
                             //If it exists above of me
-                            } else if(isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope).scope > scope) {
+                            } else if(isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope, findScopeLetter(scope)).scope > scope) {
                                 symbolTable.add(new Symbol(thisTokenStream.get(currentTokenPos).val, thisTokenStream.get(currentTokenPos-1).val, scope));
                                 symbolTable.get(symbolTable.size()-1).isInit = true;
+                                symbolTable.get(symbolTable.size()-1).scopeLetter = findScopeLetter(scope);
                             //If it exists parrallel to me
-                            } else {
+                            } else if(isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope, findScopeLetter(scope)).scope == scope) {
+                                System.out.println(isInTableS(symbolTable, thisTokenStream.get(currentTokenPos).val, scope, findScopeLetter(scope)).scope);
+                                System.out.println(scope);
+                                System.out.println(findScopeLetter(scope));
+                                printSymbolTable();
                                 System.out.println("ERROR: The variable " + thisTokenStream.get(currentTokenPos).val + " is already declared in this scope!");
                                 debug("Semantic failed with 1 error");
                                 System.out.println();
@@ -459,9 +468,11 @@ public class SemanticAnalyzer {
                                 System.out.println();
                                 isntError = false;
                             }
+                        //If it's not there
                         } else {
                             symbolTable.add(new Symbol(thisTokenStream.get(currentTokenPos).val, thisTokenStream.get(currentTokenPos-1).val, scope));
                             symbolTable.get(symbolTable.size()-1).isInit = true;
+                            symbolTable.get(symbolTable.size()-1).scopeLetter = findScopeLetter(scope);
                         }
                         decState = false;
                     }
@@ -494,10 +505,12 @@ public class SemanticAnalyzer {
     }
 
     //same as isInTable but also backtracks thru lesser scopes
-    private Symbol isInTableS(ArrayList<Symbol> checkST, String checkName, int scope) {
-        for(int i = scope; i > -1; i--) {
+    private Symbol isInTableS(ArrayList<Symbol> checkST, String checkName, int iscope, String iScopeLetter) {
+        for(int i = iscope; i > -1; i--) {
             for(int j = 0; j < checkST.size(); j++) {
-                if(checkST.get(j).name.equals(checkName) && checkST.get(j).scope == i) {
+                if(checkST.get(j).name.equals(checkName) && checkST.get(j).scope == i && checkST.get(j).scopeLetter.equals(iScopeLetter) && i == iscope) {
+                    return checkST.get(j);
+                } else if(checkST.get(j).name.equals(checkName) && checkST.get(j).scope == i && checkST.get(j).scopeLetter.equals(iScopeLetter)) {
                     return checkST.get(j);
                 }
             }
@@ -517,6 +530,19 @@ public class SemanticAnalyzer {
         num = 0;
     }
 
+    private String findScopeLetter(int inputScope) {
+        String scopeLetter = "";
+        int num = 0;
+        for(int i = 0; i < scopeList.size(); i++) {
+            if(scopeList.get(i) == inputScope) {
+                num++;
+            }
+        }
+        num--;
+        scopeLetter = (char)(97 + num) + "";
+        return scopeLetter;
+    }
+
     private void printAST() {
         String leading = "";
         for(int i = 0; i < AST.size(); i++) {
@@ -532,7 +558,7 @@ public class SemanticAnalyzer {
         System.out.println();
         System.out.println("Name | Type | isInit? | isUsed? | Scope");
         for(int i = 0; i < symbolTable.size(); i++) {
-            System.out.println(symbolTable.get(i).name + "|" + symbolTable.get(i).type + "|" + symbolTable.get(i).isInit + "|" + symbolTable.get(i).isUsed + "|" + symbolTable.get(i).scope + symbolTable.get(i).scopeLetter);
+            System.out.println(symbolTable.get(i).name + "|" + symbolTable.get(i).type + "|" + symbolTable.get(i).isInit + "|" + symbolTable.get(i).isUsed + "|" + symbolTable.get(i).scope + "" +  symbolTable.get(i).scopeLetter);
         }
         System.out.println();
     }

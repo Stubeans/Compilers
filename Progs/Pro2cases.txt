@@ -27,6 +27,6 @@ $
         x = (x == true)
     }
     {
-        {}
+        string x
     }
 }$
