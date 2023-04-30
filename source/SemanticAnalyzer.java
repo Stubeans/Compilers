@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 public class SemanticAnalyzer {
 
+    CodeGen codeGen = new CodeGen();
+
     private int currentTokenPos;
     private String currentToken;
     ArrayList<Token> thisTokenStream;
@@ -41,6 +43,7 @@ public class SemanticAnalyzer {
         if(isntError) {
             printAST();
             printSymbolTable();
+            codeGen.main(AST, ASTdepth, symbolTable);
         }
 
         AST.clear();
