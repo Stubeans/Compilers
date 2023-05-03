@@ -92,6 +92,8 @@ public class SemanticAnalyzer {
             currentTokenPos++;
             currentToken = thisTokenStream.get(currentTokenPos).type;
             parseStmtList();
+            AST.add("<endBlock>");
+            ASTdepth.add(depth);
             currentTokenPos++;
             currentToken = thisTokenStream.get(currentTokenPos).type;
             //At the end of every function ( except parsePrg ) decrement the depth counter
@@ -513,7 +515,7 @@ public class SemanticAnalyzer {
             for(int j = 0; j < checkST.size(); j++) {
                 if(checkST.get(j).name.equals(checkName) && checkST.get(j).scope == i && checkST.get(j).scopeLetter.equals(iScopeLetter) && i == iscope) {
                     return checkST.get(j);
-                } else if(checkST.get(j).name.equals(checkName) && checkST.get(j).scope == i && checkST.get(j).scopeLetter.equals(iScopeLetter)) {
+                } else if(checkST.get(j).name.equals(checkName) && checkST.get(j).scope == i && i != iscope) {
                     return checkST.get(j);
                 }
             }
@@ -549,11 +551,13 @@ public class SemanticAnalyzer {
     private void printAST() {
         String leading = "";
         for(int i = 0; i < AST.size(); i++) {
-            for(int j = 0; j < ASTdepth.get(i); j++) {
-                leading = leading + "-";
+            if(!AST.get(i).equals("<endBlock>")) {
+                for(int j = 0; j < ASTdepth.get(i); j++) {
+                    leading = leading + "-";
+                }
+                System.out.println(leading + AST.get(i));
+                leading = "";
             }
-            System.out.println(leading + AST.get(i));
-            leading = "";
         }
     }
 
