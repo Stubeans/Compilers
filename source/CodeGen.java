@@ -67,18 +67,38 @@ public class CodeGen {
                 if(!(AST.get(i + 1).length() > 3)) {
                     i++;
                     while(isntDone) {
-                        addToCode("A9");
-                        addToCode(num2hex(Integer.valueOf(AST.get(i).substring(1, 2))));
-                        addToCode("6D");
-                        addToCode(tempVariable.temp.substring(0, 2));
-                        addToCode("XX");
-                        addToCode("8D");
-                        addToCode(tempVariable.temp.substring(0, 2));
-                        addToCode("XX");
-                        if(AST.get(i + 1).length() > 3) {
-                            isntDone = false;
+                        //If it isn't an ID
+                        if(!isValidChar(AST.get(i).substring(1, 2))) {
+                            addToCode("A9");
+                            addToCode(num2hex(Integer.valueOf(AST.get(i).substring(1, 2))));
+                            addToCode("6D");
+                            addToCode(tempVariable.temp.substring(0, 2));
+                            addToCode("XX");
+                            addToCode("8D");
+                            addToCode(tempVariable.temp.substring(0, 2));
+                            addToCode("XX");
+                            if(AST.get(i + 1).length() > 3) {
+                                isntDone = false;
+                            } else {
+                                i++;
+                            }
+                        //If it is an ID
                         } else {
-                            i++;
+                            tempVar tempVariable2 = isInTempTable(stack, AST.get(i).substring(1, 2), scope, findScopeLetter(scope));
+                            addToCode("AD");
+                            addToCode(tempVariable2.temp.substring(0, 2));
+                            addToCode("XX");
+                            addToCode("6D");
+                            addToCode(tempVariable.temp.substring(0, 2));
+                            addToCode("XX");
+                            addToCode("8D");
+                            addToCode(tempVariable.temp.substring(0, 2));
+                            addToCode("XX");
+                            if(AST.get(i + 1).length() > 3) {
+                                isntDone = false;
+                            } else {
+                                i++;
+                            }
                         }
                     }
                 }
@@ -199,5 +219,15 @@ public class CodeGen {
             System.out.print(opCodes.get(i) + " ");
         }
     }
+
+    //Helper function to tell if a given char ( in string format ) is valid. valid meaning a-z lowercase.
+    private boolean isValidChar(String x) {
+        for(int j = 97; j < 123; j++) {
+          if(x.equals((char)j + "")) {
+            return true;
+          }
+        }
+        return false;
+      }
     
 }
