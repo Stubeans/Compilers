@@ -40,6 +40,8 @@ public class CodeGen {
     }   
 
     private void codeGeneration() {
+        stack.add(new tempVar("T0XX", "add", "0", 0, ""));
+        tempNum++;
         for(int i = 0 ; i < AST.size(); i++) {
             if(AST.get(i).equals("<Variable Declaration>")) {
                 //System.out.println("VarDecl");
@@ -56,29 +58,44 @@ public class CodeGen {
                 i++;
                 tempVar tempVariable = isInTempTable(stack, AST.get(i).substring(1, 2), scope, findScopeLetter(scope));
                 i++;
-                addToCode("A9");
-                //addToCode("00");
                 boolean isntDone = true;
-                int wholeNum = 0;
-                while(isntDone) {
-                    wholeNum = wholeNum + Integer.valueOf(AST.get(i).substring(1, 2));
-                    if(AST.get(i + 1).length() > 3) {
-                        isntDone = false;
-                    } else {
-                        i++;
-                    }
-                }
-                addToCode(num2hex(wholeNum));
+                addToCode("A9");
+                addToCode(num2hex(Integer.valueOf(AST.get(i).substring(1, 2))));
                 addToCode("8D");
                 addToCode(tempVariable.temp.substring(0, 2));
                 addToCode("XX");
+                if(!(AST.get(i + 1).length() > 3)) {
+                    i++;
+                    while(isntDone) {
+                        addToCode("A9");
+                        addToCode(num2hex(Integer.valueOf(AST.get(i).substring(1, 2))));
+                        addToCode("6D");
+                        addToCode(tempVariable.temp.substring(0, 2));
+                        addToCode("XX");
+                        addToCode("8D");
+                        addToCode(tempVariable.temp.substring(0, 2));
+                        addToCode("XX");
+                        if(AST.get(i + 1).length() > 3) {
+                            isntDone = false;
+                        } else {
+                            i++;
+                        }
+                    }
+                }
 
             } else if(AST.get(i).equals("<If Statement>")) {
 
             } else if(AST.get(i).equals("<While Statement>")) {
 
             } else if(AST.get(i).equals("<Print Statement>")) {
-
+                i++;
+                tempVar tempVariable = isInTempTable(stack, AST.get(i).substring(1, 2), scope, findScopeLetter(scope));
+                addToCode("A2");
+                addToCode("01");
+                addToCode("AC");
+                addToCode(tempVariable.temp.substring(0, 2));
+                addToCode("XX");
+                addToCode("FF");
             } else if(AST.get(i).equals("<Block>")) {
                 //System.out.println("Block");
                 scope++;
