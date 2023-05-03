@@ -10,8 +10,10 @@ public class CodeGen {
     ArrayList<Symbol> symbolTable;
 
     ArrayList<String> opCodes = new ArrayList<>(256);
-    // stack contains pointer of it's respective Symbol Table (i)
+    
     ArrayList<tempVar> stack = new ArrayList<>();
+
+    ArrayList<tempVar> jumpTable = new ArrayList<>();
 
     int codePointer = 0;
     int heapPointer = 255;
@@ -21,6 +23,7 @@ public class CodeGen {
     int lastDepth = -500;
 
     int tempNum = 0;
+    int tempBranchNum = 0;
 
     public void main(ArrayList<String> iAST, ArrayList<Integer> iASTdepth, ArrayList<Symbol> isymbolTable) {
         System.out.println("Starting Code Gen...");
@@ -33,14 +36,16 @@ public class CodeGen {
         stackGen();
         heapGen();
         if(opCodes.size() > 256 || codePointer > 256) {
-            //ERROR
+            System.out.println("CodeGen: ERROR | Cannot be more than 256 opCodes");
         } else {
             printCode();
         }
     }   
 
     private void codeGeneration() {
-        stack.add(new tempVar("T0XX", "add", "0", 0, ""));
+        stack.add(new tempVar("T0XX", "Left", "0", 0, ""));
+        tempNum++;
+        stack.add(new tempVar("T1XX", "Right", "1", 0, ""));
         tempNum++;
         for(int i = 0 ; i < AST.size(); i++) {
             if(AST.get(i).equals("<Variable Declaration>")) {
@@ -77,11 +82,6 @@ public class CodeGen {
                             addToCode("8D");
                             addToCode(tempVariable.temp.substring(0, 2));
                             addToCode("XX");
-                            if(AST.get(i + 1).length() > 3) {
-                                isntDone = false;
-                            } else {
-                                i++;
-                            }
                         //If it is an ID
                         } else {
                             tempVar tempVariable2 = isInTempTable(stack, AST.get(i).substring(1, 2), scope, findScopeLetter(scope));
@@ -94,17 +94,102 @@ public class CodeGen {
                             addToCode("8D");
                             addToCode(tempVariable.temp.substring(0, 2));
                             addToCode("XX");
-                            if(AST.get(i + 1).length() > 3) {
-                                isntDone = false;
-                            } else {
-                                i++;
-                            }
+                        }
+                        if(AST.get(i + 1).length() > 3) {
+                            isntDone = false;
+                        } else {
+                            i++;
                         }
                     }
                 }
 
             } else if(AST.get(i).equals("<If Statement>")) {
-
+                tempVar branchVar = new tempVar("J" + Integer.toString(tempBranchNum), null, null, 0, null);
+                i++;
+                boolean isntDone = true;
+                addToCode("A9");
+                addToCode("00");
+                addToCode("8D");
+                addToCode("T0");
+                addToCode("XX");
+                while(isntDone) {
+                    //If it isn't an ID
+                    if(!isValidChar(AST.get(i).substring(1, 2))) {
+                        addToCode("A9");
+                        addToCode(num2hex(Integer.valueOf(AST.get(i).substring(1, 2))));
+                        addToCode("6D");
+                        addToCode("T0");
+                        addToCode("XX");
+                        addToCode("8D");
+                        addToCode("T0");
+                        addToCode("XX");
+                    //If it is an ID
+                    } else {
+                        tempVar tempVariable = isInTempTable(stack, AST.get(i).substring(1, 2), scope, findScopeLetter(scope));
+                        addToCode("AD");
+                        addToCode(tempVariable.temp.substring(0, 2));
+                        addToCode("XX");
+                        addToCode("6D");
+                        addToCode("T0");
+                        addToCode("XX");
+                        addToCode("8D");
+                        addToCode("T0");
+                        addToCode("XX");
+                    }
+                    if(AST.get(i + 1).length() > 3 && !AST.get(i + 1).equals("<Boolop>")) {
+                        isntDone = false;
+                    } else if(AST.get(i + 1).equals("<Boolop>")) {
+                        i++;
+                        boolean isntDone2 = true;
+                        addToCode("A9");
+                        addToCode("00");
+                        addToCode("8D");
+                        addToCode("T1");
+                        addToCode("XX");
+                        while(isntDone2) {
+                            //If it isn't an ID
+                            if(!isValidChar(AST.get(i).substring(1, 2))) {
+                                addToCode("A9");
+                                addToCode(num2hex(Integer.valueOf(AST.get(i).substring(1, 2))));
+                                addToCode("6D");
+                                addToCode("T1");
+                                addToCode("XX");
+                                addToCode("8D");
+                                addToCode("T1");
+                                addToCode("XX");
+                            //If it is an ID
+                            } else {
+                                tempVar tempVariable2 = isInTempTable(stack, AST.get(i).substring(1, 2), scope, findScopeLetter(scope));
+                                addToCode("AD");
+                                addToCode(tempVariable2.temp.substring(0, 2));
+                                addToCode("XX");
+                                addToCode("6D");
+                                addToCode("T1");
+                                addToCode("XX");
+                                addToCode("8D");
+                                addToCode("T1");
+                                addToCode("XX");
+                            }
+                            if(AST.get(i + 1).length() > 3) {
+                                isntDone2 = false;
+                            } else {
+                                i++;
+                            }
+                        }
+                        isntDone = false;
+                    } else {
+                        i++;
+                    }
+                }
+                addToCode("AE");
+                addToCode("T0");
+                addToCode("XX");
+                addToCode("EC");
+                addToCode("T1");
+                addToCode("XX");
+                addToCode("D0");
+                //Branch this # of bytes if the Left and Right sides don't match
+                addToCode(branchVar.temp);
             } else if(AST.get(i).equals("<While Statement>")) {
 
             } else if(AST.get(i).equals("<Print Statement>")) {

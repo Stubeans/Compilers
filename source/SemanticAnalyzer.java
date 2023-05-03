@@ -379,8 +379,8 @@ public class SemanticAnalyzer {
 
     private void parseBoolop() {
         if(isntError) {
-            // AST.add("<Boolean Operation>");
-            // ASTdepth.add(depth);
+            AST.add("<Boolop>");
+            ASTdepth.add(depth);
             // depth++;
             // debug("parseBoolOperation()");
             currentTokenPos++;
@@ -551,7 +551,7 @@ public class SemanticAnalyzer {
     private void printAST() {
         String leading = "";
         for(int i = 0; i < AST.size(); i++) {
-            if(!AST.get(i).equals("<endBlock>")) {
+            if(!AST.get(i).equals("<endBlock>") && !AST.get(i).equals("<Boolop>")) {
                 for(int j = 0; j < ASTdepth.get(i); j++) {
                     leading = leading + "-";
                 }

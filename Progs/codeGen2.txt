@@ -1,7 +1,8 @@
 {
     int x
-    x = 3 + 3
+    x = 1
+    if(1 == x) {
+        print(x)
+    }
     int y
-    y = 9 + x
-    print(y)
 }$
