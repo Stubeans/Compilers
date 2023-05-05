@@ -139,6 +139,7 @@ public class CodeGen {
                         isntDone = false;
                     } else if(AST.get(i + 1).equals("<Boolop>")) {
                         i++;
+                        i++;
                         boolean isntDone2 = true;
                         addToCode("A9");
                         addToCode("00");
@@ -190,6 +191,7 @@ public class CodeGen {
                 tempVar branchVar = new tempVar("J" + Integer.toString(tempBranchNum), Integer.toString(codePointer), null, scope + 1, null);
                 //Branch this # of bytes if the Left and Right sides don't match
                 addToCode(branchVar.temp);
+                jumpTable.add(branchVar);
             } else if(AST.get(i).equals("<While Statement>")) {
 
             } else if(AST.get(i).equals("<Print Statement>")) {
@@ -211,7 +213,7 @@ public class CodeGen {
                 scope--;
                 for(int j = 0; j < jumpTable.size(); j++) {
                     if(jumpTable.get(j).scope > scope) {
-                        int spots = codePointer - Integer.valueOf(jumpTable.get(j).value);
+                        int spots = codePointer - Integer.valueOf(jumpTable.get(j).var) - 1;
                         jumpTable.get(j).address = Integer.toString(spots);
                         jumpTable.get(j).scope = -500;
                     }
@@ -235,6 +237,15 @@ public class CodeGen {
             codePointer++;
         }
         //System.out.println("end stackGen");
+
+        //Also replace jump to values here
+        for(int i = 0; i < jumpTable.size(); i++) {
+            for(int j = 0; j < opCodes.size(); j++) {
+                if(opCodes.get(j).equals("J" + Integer.toString(i))) {
+                    opCodes.set(j, num2hex(Integer.valueOf(jumpTable.get(i).address)));
+                }
+            }
+        }
     }
 
     private void heapGen() {

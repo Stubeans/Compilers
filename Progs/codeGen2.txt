@@ -1,8 +1,10 @@
 {
     int x
-    x = 1
-    if(1 == x) {
+    x = 2
+    if(2 == x) {
         print(x)
     }
-    int y
+    if(2 == x) {
+        print(x)
+    }
 }$
