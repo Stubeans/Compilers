@@ -104,7 +104,6 @@ public class CodeGen {
                 }
 
             } else if(AST.get(i).equals("<If Statement>")) {
-                tempVar branchVar = new tempVar("J" + Integer.toString(tempBranchNum), null, null, 0, null);
                 i++;
                 boolean isntDone = true;
                 addToCode("A9");
@@ -188,6 +187,7 @@ public class CodeGen {
                 addToCode("T1");
                 addToCode("XX");
                 addToCode("D0");
+                tempVar branchVar = new tempVar("J" + Integer.toString(tempBranchNum), Integer.toString(codePointer), null, scope + 1, null);
                 //Branch this # of bytes if the Left and Right sides don't match
                 addToCode(branchVar.temp);
             } else if(AST.get(i).equals("<While Statement>")) {
@@ -209,6 +209,13 @@ public class CodeGen {
             } else if(AST.get(i).equals("<endBlock>")) {
                 //System.out.println("endBlock");
                 scope--;
+                for(int j = 0; j < jumpTable.size(); j++) {
+                    if(jumpTable.get(j).scope > scope) {
+                        int spots = codePointer - Integer.valueOf(jumpTable.get(j).value);
+                        jumpTable.get(j).address = Integer.toString(spots);
+                        jumpTable.get(j).scope = -500;
+                    }
+                }
             }
 
         }
