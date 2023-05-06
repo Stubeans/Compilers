@@ -189,11 +189,116 @@ public class CodeGen {
                 addToCode("XX");
                 addToCode("D0");
                 tempVar branchVar = new tempVar("J" + Integer.toString(tempBranchNum), Integer.toString(codePointer), null, scope + 1, null);
+                tempBranchNum++;
                 //Branch this # of bytes if the Left and Right sides don't match
                 addToCode(branchVar.temp);
                 jumpTable.add(branchVar);
             } else if(AST.get(i).equals("<While Statement>")) {
+                i++;
+                boolean isntDone = true;
+                int whileBegin = codePointer;
+                addToCode("A9");
+                addToCode("00");
+                addToCode("8D");
+                addToCode("T0");
+                addToCode("XX");
+                while(isntDone) {
+                    //If it isn't an ID
+                    if(!isValidChar(AST.get(i).substring(1, 2))) {
+                        addToCode("A9");
+                        addToCode(num2hex(Integer.valueOf(AST.get(i).substring(1, 2))));
+                        addToCode("6D");
+                        addToCode("T0");
+                        addToCode("XX");
+                        addToCode("8D");
+                        addToCode("T0");
+                        addToCode("XX");
+                    //If it is an ID
+                    } else {
+                        tempVar tempVariable = isInTempTable(stack, AST.get(i).substring(1, 2), scope, findScopeLetter(scope));
+                        addToCode("AD");
+                        addToCode(tempVariable.temp.substring(0, 2));
+                        addToCode("XX");
+                        addToCode("6D");
+                        addToCode("T0");
+                        addToCode("XX");
+                        addToCode("8D");
+                        addToCode("T0");
+                        addToCode("XX");
+                    }
+                    if(AST.get(i + 1).length() > 3 && !AST.get(i + 1).equals("<Boolop>")) {
+                        isntDone = false;
+                    } else if(AST.get(i + 1).equals("<Boolop>")) {
+                        i++;
+                        i++;
+                        boolean isntDone2 = true;
+                        addToCode("A9");
+                        addToCode("00");
+                        addToCode("8D");
+                        addToCode("T1");
+                        addToCode("XX");
+                        while(isntDone2) {
+                            //If it isn't an ID
+                            if(!isValidChar(AST.get(i).substring(1, 2))) {
+                                addToCode("A9");
+                                addToCode(num2hex(Integer.valueOf(AST.get(i).substring(1, 2))));
+                                addToCode("6D");
+                                addToCode("T1");
+                                addToCode("XX");
+                                addToCode("8D");
+                                addToCode("T1");
+                                addToCode("XX");
+                            //If it is an ID
+                            } else {
+                                tempVar tempVariable2 = isInTempTable(stack, AST.get(i).substring(1, 2), scope, findScopeLetter(scope));
+                                addToCode("AD");
+                                addToCode(tempVariable2.temp.substring(0, 2));
+                                addToCode("XX");
+                                addToCode("6D");
+                                addToCode("T1");
+                                addToCode("XX");
+                                addToCode("8D");
+                                addToCode("T1");
+                                addToCode("XX");
+                            }
+                            if(AST.get(i + 1).length() > 3) {
+                                isntDone2 = false;
+                            } else {
+                                i++;
+                            }
+                        }
+                        isntDone = false;
+                    } else {
+                        i++;
+                    }
+                }
+                addToCode("AE");
+                addToCode("T0");
+                addToCode("XX");
+                addToCode("EC");
+                addToCode("T1");
+                addToCode("XX");
+                addToCode("D0");
+                tempVar branchVar = new tempVar("J" + Integer.toString(tempBranchNum), Integer.toString(codePointer), null, scope + 1, Integer.toString(whileBegin));
+                tempBranchNum++;
+                //Branch this # of bytes if the Left and Right sides don't match
+                addToCode(branchVar.temp);
+                jumpTable.add(branchVar);
 
+                //This goes after the loop. I'm stupid
+
+                //addToCode("A9");
+                //addToCode("01");
+                //addToCode("8D");
+                //addToCode("T0");
+                //addToCode("XX");
+                //addToCode("A2");
+                //addToCode("02");
+                //addToCode("EC");
+                //addToCode("D0");
+                //Branch this # to get back to the beginning of the loop
+                //int goBack = (255 - codePointer) + whileBegin;
+                //addToCode(num2hex(goBack));
             } else if(AST.get(i).equals("<Print Statement>")) {
                 i++;
                 tempVar tempVariable = isInTempTable(stack, AST.get(i).substring(1, 2), scope, findScopeLetter(scope));
@@ -213,13 +318,35 @@ public class CodeGen {
                 scope--;
                 for(int j = 0; j < jumpTable.size(); j++) {
                     if(jumpTable.get(j).scope > scope) {
-                        int spots = codePointer - Integer.valueOf(jumpTable.get(j).var) - 1;
-                        jumpTable.get(j).address = Integer.toString(spots);
-                        jumpTable.get(j).scope = -500;
+                        //If its an If jump
+                        if(jumpTable.get(j).scopeLetter == null) {
+                            int spots = codePointer - Integer.valueOf(jumpTable.get(j).var) - 1;
+                            jumpTable.get(j).address = Integer.toString(spots);
+                            jumpTable.get(j).scope = -500;
+                        //If it's a While jump
+                        } else {
+                            addToCode("A9");
+                            addToCode("01");
+                            addToCode("8D");
+                            addToCode("T0");
+                            addToCode("XX");
+                            addToCode("A2");
+                            addToCode("02");
+                            addToCode("EC");
+                            addToCode("T0");
+                            addToCode("XX");
+                            addToCode("D0");
+                            //Branch this # to get back to the beginning of the loop
+                            int goBack = (255 - codePointer) + Integer.valueOf(jumpTable.get(j).scopeLetter);
+                            addToCode(num2hex(goBack));
+                            int spots = codePointer - Integer.valueOf(jumpTable.get(j).var);
+                            jumpTable.get(j).address = Integer.toString(spots);
+                            jumpTable.get(j).scope = -500;
+                        }
+                        
                     }
                 }
             }
-
         }
     }
 
