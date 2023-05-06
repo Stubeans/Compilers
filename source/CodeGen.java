@@ -67,7 +67,7 @@ public class CodeGen {
                 addToCode("A9");
                 addToCode(num2hex(Integer.valueOf(AST.get(i).substring(1, 2))));
                 addToCode("8D");
-                addToCode(tempVariable.temp.substring(0, 2));
+                addToCode("T0");
                 addToCode("XX");
                 if(!(AST.get(i + 1).length() > 3)) {
                     i++;
@@ -77,7 +77,7 @@ public class CodeGen {
                             addToCode("A9");
                             addToCode(num2hex(Integer.valueOf(AST.get(i).substring(1, 2))));
                             addToCode("6D");
-                            addToCode(tempVariable.temp.substring(0, 2));
+                            addToCode("T0");
                             addToCode("XX");
                             addToCode("8D");
                             addToCode(tempVariable.temp.substring(0, 2));
@@ -89,18 +89,25 @@ public class CodeGen {
                             addToCode(tempVariable2.temp.substring(0, 2));
                             addToCode("XX");
                             addToCode("6D");
-                            addToCode(tempVariable.temp.substring(0, 2));
+                            addToCode("T0");
                             addToCode("XX");
                             addToCode("8D");
                             addToCode(tempVariable.temp.substring(0, 2));
                             addToCode("XX");
                         }
-                        if(AST.get(i + 1).length() > 3) {
+                        if(AST.get(i + 1).length() > 3 || (AST.size() - 1) == i) {
+                            addToCode("8D");
+                            addToCode(tempVariable.temp.substring(0, 2));
+                            addToCode("XX");
                             isntDone = false;
                         } else {
                             i++;
                         }
                     }
+                } else {
+                    addToCode("8D");
+                    addToCode(tempVariable.temp.substring(0, 2));
+                    addToCode("XX");
                 }
 
             } else if(AST.get(i).equals("<If Statement>")) {
@@ -339,7 +346,7 @@ public class CodeGen {
                             //Branch this # to get back to the beginning of the loop
                             int goBack = (255 - codePointer) + Integer.valueOf(jumpTable.get(j).scopeLetter);
                             addToCode(num2hex(goBack));
-                            int spots = codePointer - Integer.valueOf(jumpTable.get(j).var);
+                            int spots = codePointer - Integer.valueOf(jumpTable.get(j).var) - 1;
                             jumpTable.get(j).address = Integer.toString(spots);
                             jumpTable.get(j).scope = -500;
                         }

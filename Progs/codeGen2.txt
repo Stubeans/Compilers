@@ -5,8 +5,6 @@
     y = 1
     print(y)
     while(x == 1) {
-        print(x)
-        print(y)
         if(y == 5) {
             x = 2
         }

@@ -1,0 +1,14 @@
+{
+    int i
+    int x
+    i = 1
+    x = 1
+    print(x)
+    while(i==1) {
+        x = 1 + x
+        print(x)
+        if(x == 8) {
+            i = 2
+        }
+    }
+}$
