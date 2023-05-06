@@ -1,7 +1,7 @@
 {
     int x
     x = 2
-    print(x)
-    x = 1 + x
-    print(x)
+    if(x!=3) {
+        print(x)
+    }
 }$

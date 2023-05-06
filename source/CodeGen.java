@@ -113,6 +113,7 @@ public class CodeGen {
             } else if(AST.get(i).equals("<If Statement>")) {
                 i++;
                 boolean isntDone = true;
+                boolean negation = false;
                 addToCode("A9");
                 addToCode("00");
                 addToCode("8D");
@@ -142,9 +143,12 @@ public class CodeGen {
                         addToCode("T0");
                         addToCode("XX");
                     }
-                    if(AST.get(i + 1).length() > 3 && !AST.get(i + 1).equals("<Boolop>")) {
+                    if(AST.get(i + 1).length() > 3 && !AST.get(i + 1).equals("<==>") && !AST.get(i + 1).equals("<!=>")) {
                         isntDone = false;
-                    } else if(AST.get(i + 1).equals("<Boolop>")) {
+                    } else if(AST.get(i + 1).equals("<==>") || AST.get(i + 1).equals("<!=>")) {
+                        if(AST.get(i + 1).equals("<!=>")) {
+                            negation = true;
+                        }
                         i++;
                         i++;
                         boolean isntDone2 = true;
@@ -194,6 +198,22 @@ public class CodeGen {
                 addToCode("EC");
                 addToCode("T1");
                 addToCode("XX");
+                if(negation == true) {
+                    addToCode("A9");
+                    addToCode("00");
+                    addToCode("D0");
+                    addToCode("02");
+                    addToCode("A9");
+                    addToCode("01");
+                    addToCode("A2");
+                    addToCode("00");
+                    addToCode("8D");
+                    addToCode("T0");
+                    addToCode("XX");
+                    addToCode("EC");
+                    addToCode("T0");
+                    addToCode("XX");
+                }
                 addToCode("D0");
                 tempVar branchVar = new tempVar("J" + Integer.toString(tempBranchNum), Integer.toString(codePointer), null, scope + 1, null);
                 tempBranchNum++;
@@ -203,6 +223,7 @@ public class CodeGen {
             } else if(AST.get(i).equals("<While Statement>")) {
                 i++;
                 boolean isntDone = true;
+                boolean negation = false;
                 int whileBegin = codePointer;
                 addToCode("A9");
                 addToCode("00");
@@ -233,9 +254,12 @@ public class CodeGen {
                         addToCode("T0");
                         addToCode("XX");
                     }
-                    if(AST.get(i + 1).length() > 3 && !AST.get(i + 1).equals("<Boolop>")) {
+                    if(AST.get(i + 1).length() > 3 && !AST.get(i + 1).equals("<==>") && !AST.get(i + 1).equals("<!=>")) {
                         isntDone = false;
-                    } else if(AST.get(i + 1).equals("<Boolop>")) {
+                    } else if(AST.get(i + 1).equals("<==>") || AST.get(i + 1).equals("<!=>")) {
+                        if(AST.get(i + 1).equals("<!=>")) {
+                            negation = true;
+                        }
                         i++;
                         i++;
                         boolean isntDone2 = true;
@@ -285,6 +309,22 @@ public class CodeGen {
                 addToCode("EC");
                 addToCode("T1");
                 addToCode("XX");
+                if(negation == true) {
+                    addToCode("A9");
+                    addToCode("00");
+                    addToCode("D0");
+                    addToCode("02");
+                    addToCode("A9");
+                    addToCode("01");
+                    addToCode("A2");
+                    addToCode("00");
+                    addToCode("8D");
+                    addToCode("T0");
+                    addToCode("XX");
+                    addToCode("EC");
+                    addToCode("T0");
+                    addToCode("XX");
+                }
                 addToCode("D0");
                 tempVar branchVar = new tempVar("J" + Integer.toString(tempBranchNum), Integer.toString(codePointer), null, scope + 1, Integer.toString(whileBegin));
                 tempBranchNum++;

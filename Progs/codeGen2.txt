@@ -4,10 +4,7 @@
     int y
     y = 1
     print(y)
-    while(x == 1) {
-        if(y == 5) {
-            x = 2
-        }
+    while(y != 5) {
         y = 1 + y
         print(y)
     }
