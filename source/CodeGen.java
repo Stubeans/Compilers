@@ -35,7 +35,7 @@ public class CodeGen {
         codeGeneration();
         stackGen();
         heapGen();
-        if(opCodes.size() > 256 || codePointer > 256) {
+        if(opCodes.size() > 256 || codePointer > 256 || heapPointer < codePointer) {
             System.out.println("CodeGen: ERROR | Cannot be more than 256 opCodes");
         } else {
             printCode();
@@ -49,9 +49,11 @@ public class CodeGen {
         tempNum++;
         for(int i = 0 ; i < AST.size(); i++) {
             if(AST.get(i).equals("<Variable Declaration>")) {
-                //System.out.println("VarDecl");
+                //System.out.println(AST.get(i)); -> <VarDecl>
                 i++;
+                //System.out.println(AST.get(i)); -> [type]
                 i++;
+                //System.out.println(AST.get(i)); -> [id]
                 stack.add(new tempVar("T" + Integer.toString(tempNum) + "XX", AST.get(i).substring(1, 2), Integer.toString(tempNum), scope, findScopeLetter(scope)));
                 addToCode("A9");
                 addToCode("00");
@@ -62,53 +64,80 @@ public class CodeGen {
             } else if(AST.get(i).equals("<Assign Statement>")) {
                 i++;
                 tempVar tempVariable = isInTempTable(stack, AST.get(i).substring(1, 2), scope, findScopeLetter(scope));
+                Symbol tempSymbol = isInTableS(symbolTable, AST.get(i).substring(1, 2), scope, findScopeLetter(scope));
                 i++;
                 boolean isntDone = true;
-                addToCode("A9");
-                addToCode(num2hex(Integer.valueOf(AST.get(i).substring(1, 2))));
-                addToCode("8D");
-                addToCode("T0");
-                addToCode("XX");
-                if(!(AST.get(i + 1).length() > 3)) {
-                    i++;
-                    while(isntDone) {
-                        //If it isn't an ID
-                        if(!isValidChar(AST.get(i).substring(1, 2))) {
-                            addToCode("A9");
-                            addToCode(num2hex(Integer.valueOf(AST.get(i).substring(1, 2))));
-                            addToCode("6D");
-                            addToCode("T0");
-                            addToCode("XX");
-                            addToCode("8D");
-                            addToCode(tempVariable.temp.substring(0, 2));
-                            addToCode("XX");
-                        //If it is an ID
-                        } else {
-                            tempVar tempVariable2 = isInTempTable(stack, AST.get(i).substring(1, 2), scope, findScopeLetter(scope));
-                            addToCode("AD");
-                            addToCode(tempVariable2.temp.substring(0, 2));
-                            addToCode("XX");
-                            addToCode("6D");
-                            addToCode("T0");
-                            addToCode("XX");
-                            addToCode("8D");
-                            addToCode(tempVariable.temp.substring(0, 2));
-                            addToCode("XX");
+                //IF ITS AN INT
+                if(tempSymbol.type.equals("int")) {
+                    addToCode("A9");
+                    addToCode(num2hex(Integer.valueOf(AST.get(i).substring(1, 2))));
+                    addToCode("8D");
+                    addToCode("T0");
+                    addToCode("XX");
+                    if(!(AST.get(i + 1).length() > 3)) {
+                        i++;
+                        while(isntDone) {
+                            //If it isn't an ID
+                            if(!isValidChar(AST.get(i).substring(1, 2))) {
+                                addToCode("A9");
+                                addToCode(num2hex(Integer.valueOf(AST.get(i).substring(1, 2))));
+                                addToCode("6D");
+                                addToCode("T0");
+                                addToCode("XX");
+                                addToCode("8D");
+                                addToCode(tempVariable.temp.substring(0, 2));
+                                addToCode("XX");
+                            //If it is an ID
+                            } else {
+                                tempVar tempVariable2 = isInTempTable(stack, AST.get(i).substring(1, 2), scope, findScopeLetter(scope));
+                                addToCode("AD");
+                                addToCode(tempVariable2.temp.substring(0, 2));
+                                addToCode("XX");
+                                addToCode("6D");
+                                addToCode("T0");
+                                addToCode("XX");
+                                addToCode("8D");
+                                addToCode(tempVariable.temp.substring(0, 2));
+                                addToCode("XX");
+                            }
+                            if(AST.get(i + 1).length() > 3 || (AST.size() - 1) == i) {
+                                addToCode("8D");
+                                addToCode(tempVariable.temp.substring(0, 2));
+                                addToCode("XX");
+                                isntDone = false;
+                            } else {
+                                i++;
+                            }
                         }
-                        if(AST.get(i + 1).length() > 3 || (AST.size() - 1) == i) {
-                            addToCode("8D");
-                            addToCode(tempVariable.temp.substring(0, 2));
-                            addToCode("XX");
-                            isntDone = false;
-                        } else {
-                            i++;
-                        }
+                    } else {
+                        addToCode("8D");
+                        addToCode(tempVariable.temp.substring(0, 2));
+                        addToCode("XX");
                     }
-                } else {
+                //IF ITS A STRING
+                } else if(tempSymbol.type.equals("string")) {
+                    String inString = AST.get(i).substring(1, AST.get(i).length()-1);
+                    addToCode("A9");
+                    addToCode("00");
+                    addToCode("8D");
+                    addToCode(num2hex(heapPointer));
+                    heapPointer--;
+                    addToCode("00");
+                    for(int j = inString.length(); j > 0; j--) {
+                        addToCode("A9");
+                        addToCode(num2hex((int)inString.charAt(j-1)));
+                        addToCode("8D");
+                        addToCode(num2hex(heapPointer));
+                        heapPointer--;
+                        addToCode("00");
+                    }
+                    addToCode("A9");
+                    addToCode(num2hex(heapPointer + 1));
                     addToCode("8D");
                     addToCode(tempVariable.temp.substring(0, 2));
                     addToCode("XX");
                 }
+
 
             } else if(AST.get(i).equals("<If Statement>")) {
                 i++;
@@ -349,8 +378,13 @@ public class CodeGen {
             } else if(AST.get(i).equals("<Print Statement>")) {
                 i++;
                 tempVar tempVariable = isInTempTable(stack, AST.get(i).substring(1, 2), scope, findScopeLetter(scope));
+                Symbol tempSymbol = isInTableS(symbolTable, AST.get(i).substring(1, 2), scope, findScopeLetter(scope));
                 addToCode("A2");
-                addToCode("01");
+                if(tempSymbol.type.equals("int")) {
+                    addToCode("01");
+                } else if(tempSymbol.type.equals("string")) {
+                    addToCode("02");
+                }
                 addToCode("AC");
                 addToCode(tempVariable.temp.substring(0, 2));
                 addToCode("XX");
