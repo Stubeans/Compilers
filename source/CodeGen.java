@@ -141,7 +141,7 @@ public class CodeGen {
                     if(AST.get(i).equals("[true]")) {
                         addToCode("01");
                     } else if(AST.get(i).equals("[false]")) {
-                        addToCode("02");
+                        addToCode("00");
                     }
                     addToCode("8D");
                     addToCode(tempVariable.temp.substring(0, 2));

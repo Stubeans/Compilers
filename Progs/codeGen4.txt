@@ -2,8 +2,8 @@
     boolean x
     x = true
     boolean y
-    y = true
-    if(false == true) {
-        print(x)
+    y = false
+    if(x == true) {
+        print(y)
     }
 }$
