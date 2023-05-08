@@ -417,20 +417,54 @@ public class CodeGen {
                 //addToCode(num2hex(goBack));
             } else if(AST.get(i).equals("<Print Statement>")) {
                 i++;
-                tempVar tempVariable = isInTempTable(stack, AST.get(i).substring(1, 2), scope, findScopeLetter(scope));
-                Symbol tempSymbol = isInTableS(symbolTable, AST.get(i).substring(1, 2), scope, findScopeLetter(scope));
-                addToCode("A2");
-                if(tempSymbol.type.equals("int")) {
-                    addToCode("01");
-                } else if(tempSymbol.type.equals("string")) {
+                //If its a String
+                if(AST.get(i).substring(0, 1).equals("{")) {
+                    stack.add(new tempVar("T" + Integer.toString(tempNum) + "XX", AST.get(i).substring(1, 2), Integer.toString(tempNum), scope, findScopeLetter(scope)));
+                    String inString = AST.get(i).substring(1, AST.get(i).length()-1);
+                    addToCode("A9");
+                    addToCode("00");
+                    addToCode("8D");
+                    addToCode(num2hex(heapPointer));
+                    heapPointer--;
+                    addToCode("00");
+                    for(int j = inString.length(); j > 0; j--) {
+                        addToCode("A9");
+                        addToCode(num2hex((int)inString.charAt(j-1)));
+                        addToCode("8D");
+                        addToCode(num2hex(heapPointer));
+                        heapPointer--;
+                        addToCode("00");
+                    }
+                    addToCode("A9");
+                    addToCode(num2hex(heapPointer + 1));
+                    addToCode("8D");
+                    addToCode("T" + Integer.toString(tempNum));
+                    addToCode("XX");
+                    addToCode("A2");
                     addToCode("02");
-                } else if(tempSymbol.type.equals("boolean")) {
-                    addToCode("01");
+                    addToCode("AC");
+                    addToCode("T" + Integer.toString(tempNum));
+                    tempNum++;
+                    addToCode("XX");
+                    addToCode("FF");
+                //If its not a String
+                } else {
+                    tempVar tempVariable = isInTempTable(stack, AST.get(i).substring(1, 2), scope, findScopeLetter(scope));
+                    Symbol tempSymbol = isInTableS(symbolTable, AST.get(i).substring(1, 2), scope, findScopeLetter(scope));
+                    addToCode("A2");
+                    if(tempSymbol.type.equals("int")) {
+                        addToCode("01");
+                    } else if(tempSymbol.type.equals("string")) {
+                        addToCode("02");
+                    } else if(tempSymbol.type.equals("boolean")) {
+                        addToCode("01");
+                    }
+                    addToCode("AC");
+                    addToCode(tempVariable.temp.substring(0, 2));
+                    addToCode("XX");
+                    addToCode("FF");
                 }
-                addToCode("AC");
-                addToCode(tempVariable.temp.substring(0, 2));
-                addToCode("XX");
-                addToCode("FF");
+
             } else if(AST.get(i).equals("<Block>")) {
                 //System.out.println("Block");
                 scope++;

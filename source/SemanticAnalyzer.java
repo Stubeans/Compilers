@@ -331,7 +331,7 @@ public class SemanticAnalyzer {
                     parseSpace();
                     parseCharList();
                 } else {
-                    AST.add("[" + currentString + "]");
+                    AST.add("{" + currentString + "}");
                     ASTdepth.add(depth);
                     currentString = "";
                 }
