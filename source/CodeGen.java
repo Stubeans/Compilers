@@ -87,9 +87,6 @@ public class CodeGen {
                                 addToCode("8D");
                                 addToCode("T0");
                                 addToCode("XX");
-                                addToCode("8D");
-                                addToCode(tempVariable.temp.substring(0, 2));
-                                addToCode("XX");
                             //If it is an ID
                             } else {
                                 tempVar tempVariable2 = isInTempTable(stack, AST.get(i).substring(1, 2), scope, findScopeLetter(scope));
@@ -101,9 +98,6 @@ public class CodeGen {
                                 addToCode("XX");
                                 addToCode("8D");
                                 addToCode("T0");
-                                addToCode("XX");
-                                addToCode("8D");
-                                addToCode(tempVariable.temp.substring(0, 2));
                                 addToCode("XX");
                             }
                             if(AST.get(i + 1).length() > 3 || (AST.size() - 1) == i) {
