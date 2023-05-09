@@ -85,6 +85,9 @@ public class CodeGen {
                                 addToCode("T0");
                                 addToCode("XX");
                                 addToCode("8D");
+                                addToCode("T0");
+                                addToCode("XX");
+                                addToCode("8D");
                                 addToCode(tempVariable.temp.substring(0, 2));
                                 addToCode("XX");
                             //If it is an ID
@@ -94,6 +97,9 @@ public class CodeGen {
                                 addToCode(tempVariable2.temp.substring(0, 2));
                                 addToCode("XX");
                                 addToCode("6D");
+                                addToCode("T0");
+                                addToCode("XX");
+                                addToCode("8D");
                                 addToCode("T0");
                                 addToCode("XX");
                                 addToCode("8D");
@@ -191,6 +197,9 @@ public class CodeGen {
                         addToCode(tempVariable.temp.substring(0, 2));
                         addToCode("XX");
                         addToCode("6D");
+                        addToCode("T0");
+                        addToCode("XX");
+                        addToCode("8D");
                         addToCode("T0");
                         addToCode("XX");
                         addToCode("8D");
@@ -615,6 +624,6 @@ public class CodeGen {
           }
         }
         return false;
-      }
+    }
     
 }
