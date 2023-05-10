@@ -67,8 +67,17 @@ public class CodeGen {
                 Symbol tempSymbol = isInTableS(symbolTable, AST.get(i).substring(1, 2), scope, findScopeLetter(scope));
                 i++;
                 boolean isntDone = true;
+                //IF ITS AN ID FIRST
+                if (!(AST.get(i).length() > 3) && isValidChar(AST.get(i).substring(1, 2))) {
+                    tempVar tempVariable2 = isInTempTable(stack, AST.get(i).substring(1, 2), scope, findScopeLetter(scope));
+                    addToCode("AD");
+                    addToCode(tempVariable2.temp.substring(0, 2));
+                    addToCode("XX");
+                    addToCode("8D");
+                    addToCode(tempVariable.temp.substring(0, 2));
+                    addToCode("XX");
                 //IF ITS AN INT
-                if(tempSymbol.type.equals("int")) {
+                } else if(tempSymbol.type.equals("int")) {
                     addToCode("A9");
                     addToCode(num2hex(Integer.valueOf(AST.get(i).substring(1, 2))));
                     addToCode("8D");
@@ -450,8 +459,8 @@ public class CodeGen {
                     tempNum++;
                     addToCode("XX");
                     addToCode("FF");
-                //If its not a String
-                } else {
+                //If its not a "String"
+                } else if (!(AST.get(i).length() > 3) && isValidChar(AST.get(i).substring(1, 2))) {
                     tempVar tempVariable = isInTempTable(stack, AST.get(i).substring(1, 2), scope, findScopeLetter(scope));
                     Symbol tempSymbol = isInTableS(symbolTable, AST.get(i).substring(1, 2), scope, findScopeLetter(scope));
                     addToCode("A2");
@@ -466,6 +475,60 @@ public class CodeGen {
                     addToCode(tempVariable.temp.substring(0, 2));
                     addToCode("XX");
                     addToCode("FF");
+                //If it's an IntExpr
+                } else {
+                    addToCode("A9");
+                    addToCode(num2hex(Integer.valueOf(AST.get(i).substring(1, 2))));
+                    addToCode("8D");
+                    addToCode("T0");
+                    addToCode("XX");
+                    boolean isntDone = true;
+                    if(!(AST.get(i + 1).length() > 3)) {
+                        i++;
+                        while(isntDone) {
+                            //If it isn't an ID
+                            if(!isValidChar(AST.get(i).substring(1, 2))) {
+                                addToCode("A9");
+                                addToCode(num2hex(Integer.valueOf(AST.get(i).substring(1, 2))));
+                                addToCode("6D");
+                                addToCode("T0");
+                                addToCode("XX");
+                                addToCode("8D");
+                                addToCode("T0");
+                                addToCode("XX");
+                            //If it is an ID
+                            } else {
+                                tempVar tempVariable2 = isInTempTable(stack, AST.get(i).substring(1, 2), scope, findScopeLetter(scope));
+                                addToCode("AD");
+                                addToCode(tempVariable2.temp.substring(0, 2));
+                                addToCode("XX");
+                                addToCode("6D");
+                                addToCode("T0");
+                                addToCode("XX");
+                                addToCode("8D");
+                                addToCode("T0");
+                                addToCode("XX");
+                            }
+                            if(AST.get(i + 1).length() > 3 || (AST.size() - 1) == i) {
+                                addToCode("A2");
+                                addToCode("01");
+                                addToCode("AC");
+                                addToCode("T0");
+                                addToCode("XX");
+                                addToCode("FF");
+                                isntDone = false;
+                            } else {
+                                i++;
+                            }
+                        }
+                    } else {
+                        addToCode("A2");
+                        addToCode("01");
+                        addToCode("AC");
+                        addToCode("T0");
+                        addToCode("XX");
+                        addToCode("FF");
+                    }
                 }
 
             } else if(AST.get(i).equals("<Block>")) {
