@@ -475,6 +475,16 @@ public class CodeGen {
                     addToCode(tempVariable.temp.substring(0, 2));
                     addToCode("XX");
                     addToCode("FF");
+                } else if(AST.get(i).equals("[true]") || AST.get(i).equals("[false]")) {
+                    addToCode("A2");
+                    addToCode("01");
+                    addToCode("A0");
+                    if(AST.get(i).equals("[true]")) {
+                        addToCode("01");
+                    } else {
+                        addToCode("00");
+                    }
+                    addToCode("FF");
                 //If it's an IntExpr
                 } else {
                     addToCode("A9");
