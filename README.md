@@ -22,3 +22,6 @@ java source/Compiler.java Progs/testCases.txt
 : PLEASE READ THE FOLLOWING :
 
 At the moment Project 4 is mostly complete. To my knowledge all integer functions work as intended, most if not all string functions work as intended, and booleans are partially implemented. Boolops that compare booleanExprs are the only part of booleans not entirely implemented as far as I am aware.
+
+Final Grade: 135/150
+Final Course Grade: A-
